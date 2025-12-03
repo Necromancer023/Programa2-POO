@@ -5,7 +5,7 @@ import java.util.List;
 
 public class FasePreventiva {
 
-     public enum Frecuencia {
+    public enum Frecuencia {
         DIARIA,
         SEMANAL,
         MENSUAL,
