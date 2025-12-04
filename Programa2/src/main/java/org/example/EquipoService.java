@@ -52,4 +52,44 @@ public class EquipoService {
         }
         return false; // No se encontró el equipo para eliminar
     }
+
+    // Método para actualizar la ubicación de un equipo por ID
+    public boolean actualizarUbicacionEquipo(int idEquipo, String nuevaUbicacion) {
+        Equipo equipo = buscarEquipoPorId(idEquipo);
+        if (equipo != null) {
+            equipo.setUbicacion(nuevaUbicacion);
+            return true; // Ubicación actualizada exitosamente
+        }
+        return false; // No se encontró el equipo para actualizar
+    }
+
+    // Método para actualizar el estado de un equipo por ID
+    public boolean actualizarEstadoEquipo(int idEquipo, Equipo.EstadoEquipo nuevoEstado) {
+        Equipo equipo = buscarEquipoPorId(idEquipo);
+        if (equipo != null) {
+            equipo.setEstado(nuevoEstado);
+            return true; // Estado actualizado exitosamente
+        }
+        return false; // No se encontró el equipo para actualizar
+    }
+
+    // Método para actualizar el fabricante de un equipo por ID
+    public boolean actualizarFabricanteEquipo(int idEquipo, String nuevoFabricante) {
+        Equipo equipo = buscarEquipoPorId(idEquipo);
+        if (equipo != null) {
+            equipo.setFabricante(nuevoFabricante);
+            return true; // Fabricante actualizado exitosamente
+        }
+        return false; // No se encontró el equipo para actualizar
+    }
+
+    // Método para asignar promgrama preventivo
+    public boolean asignarProgramaPreventivo(int idEquipo, ProgramaPreventivo programa) {
+        Equipo equipo = buscarEquipoPorId(idEquipo);
+        if (equipo != null) {
+            equipo.setProgramaPreventivo(programa);
+            return true; // Programa preventivo asignado exitosamente
+        }
+        return false; // No se encontró el equipo para asignar el programa
+    }
 }
