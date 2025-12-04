@@ -1,12 +1,12 @@
 package org.example;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Equipo {
 
-    private int id;
+    private int idEquipo;
     private String descripcion;
     private String tipo;
     private String ubicacion;
@@ -39,7 +39,7 @@ public class Equipo {
     public Equipo(int id, String descripcion, String tipo, String ubicacion, String fabricante, String serie,
                   LocalDate fechaAdquisicion, LocalDate fechaPuestaEnServicio, int mesesVidaUtil,
                   double costoInicial, EstadoEquipo estado) {
-        this.id = id;
+        this.idEquipo = id;
         this.descripcion = descripcion;
         this.tipo = tipo;
         this.ubicacion = ubicacion;
@@ -59,7 +59,7 @@ public class Equipo {
     // -- Getters y Setters --
 
     public int getId() {
-        return id;
+        return idEquipo;
     }
 
     public String getDescripcion() {
@@ -196,7 +196,7 @@ public class Equipo {
     @Override
     public String toString() {
         return "Equipo{" +
-                "id=" + id +
+                "idEquipo=" + idEquipo +
                 ", descripcion='" + descripcion + '\'' +
                 ", tipo='" + tipo + '\'' +
                 ", ubicacion='" + ubicacion + '\'' +
