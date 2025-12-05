@@ -3,108 +3,134 @@ package org.example;
 import java.time.LocalDate;
 import java.util.List;
 
-public class OrdenCorrectivaController {
+public class OrdenPreventivaController {
 
-    private OrdenCorrectivaService ordenService;
+    private OrdenPreventivaService ordenService;
 
     // Constructor
-    public OrdenCorrectivaController() {
-        this.ordenService = new OrdenCorrectivaService();
+    public OrdenPreventivaController() {
+        this.ordenService = new OrdenPreventivaService();
     }
 
-    // Crear una nueva orden correctiva
-    public String crearOrdenCorrectiva(int idOrden, LocalDate fechaReporte,
-                                       Equipo equipoAsociado, String descripcionFalla,
-                                       String causaFalla) {
+    // ----------------------------------------------------------
+    // CREAR ORDEN PREVENTIVA
+    // ----------------------------------------------------------
+    public String crearOrdenPreventiva(int idOrden, LocalDate fechaProgramada,
+                                       Equipo equipoAsociado, FasePreventiva fase,
+                                       String tecnicoAsignado) {
 
-        // Validaciones
-        if (idOrden <= 0) {
-            return "El ID debe ser mayor que cero.";
-        }
-        if (fechaReporte == null) {
-            return "Debe ingresar una fecha de reporte válida.";
-        }
-        if (equipoAsociado == null) {
-            return "Debe seleccionar un equipo asociado.";
-        }
-        if (descripcionFalla == null || descripcionFalla.isBlank()) {
-            return "La descripción de la falla no puede estar vacía.";
-        }
-        if (causaFalla == null || causaFalla.isBlank()) {
-            return "La causa de la falla no puede estar vacía.";
-        }
+        if (idOrden <= 0) return "El ID debe ser mayor que cero.";
+        if (fechaProgramada == null) return "Debe indicar una fecha programada.";
+        if (equipoAsociado == null) return "Debe seleccionar un equipo asociado.";
+        if (fase == null) return "Debe seleccionar una fase preventiva.";
+        if (tecnicoAsignado == null || tecnicoAsignado.isBlank())
+            return "Debe indicar el nombre del técnico asignado.";
 
-        OrdenCorrectiva nueva = new OrdenCorrectiva(
-                idOrden, fechaReporte, equipoAsociado, descripcionFalla, causaFalla
+        OrdenPreventiva nueva = new OrdenPreventiva(
+                idOrden,
+                fechaProgramada,
+                equipoAsociado,
+                fase,
+                tecnicoAsignado
         );
 
-        boolean creada = ordenService.agregarOrdenCorrectiva(nueva);
+        boolean creada = ordenService.agregarOrdenPreventiva(nueva);
 
-        return creada ? "Orden correctiva creada exitosamente."
+        return creada ? "Orden preventiva creada exitosamente."
                       : "Ya existe una orden con ese ID.";
     }
 
-    // Buscar orden correctiva por ID
-    public OrdenCorrectiva buscarOrden(int idOrden) {
-        return ordenService.buscarOrdenCorrectivaPorId(idOrden);
+    // ----------------------------------------------------------
+    // BUSCAR ORDEN
+    // ----------------------------------------------------------
+    public OrdenPreventiva buscarOrden(int idOrden) {
+        return ordenService.buscarOrdenPreventivaPorId(idOrden);
     }
 
-    // Eliminar orden correctiva por ID
+    // ----------------------------------------------------------
+    // ELIMINAR ORDEN
+    // ----------------------------------------------------------
     public String eliminarOrden(int idOrden) {
-        boolean eliminada = ordenService.eliminarOrdenCorrectiva(idOrden);
+        boolean eliminada = ordenService.eliminarOrdenPreventiva(idOrden);
         return eliminada ? "Orden eliminada correctamente."
                          : "No se encontró la orden.";
     }
 
-    // Iniciar atención de la orden
-    public String iniciarAtencion(int idOrden, LocalDate fechaAtencion) {
-        if (fechaAtencion == null) {
-            return "Debe ingresar una fecha de atención válida.";
+    // ----------------------------------------------------------
+    // INICIAR ORDEN
+    // ----------------------------------------------------------
+    public String iniciarOrden(int idOrden, LocalDate fechaInicio) {
+
+        if (fechaInicio == null) {
+            return "Debe ingresar una fecha de inicio válida.";
         }
 
-        boolean iniciada = ordenService.iniciarAtencion(idOrden, fechaAtencion);
+        boolean iniciada = ordenService.iniciarOrdenPreventiva(idOrden, fechaInicio);
 
-        return iniciada ? "Atención iniciada correctamente."
-                        : "No se pudo iniciar la atención.";
+        return iniciada ? "La orden ha sido iniciada correctamente."
+                        : "No se pudo iniciar la orden.";
     }
 
-    // Finalizar una orden correctiva
-    public String finalizarOrden(int idOrden, LocalDate fechaFinalizacion,
-                                 String accionesRealizadas, double costo) {
+    // ----------------------------------------------------------
+    // COMPLETAR ORDEN
+    // ----------------------------------------------------------
+    public String completarOrden(int idOrden,
+                                 LocalDate fechaReal,
+                                 double tiempoRealHoras,
+                                 String diagnosticoFinal,
+                                 String firmaTecnico) {
 
-        if (fechaFinalizacion == null) {
-            return "Debe ingresar una fecha de finalización válida.";
-        }
-        if (accionesRealizadas == null || accionesRealizadas.isBlank()) {
-            return "Debe indicar las acciones realizadas.";
-        }
-        if (costo < 0) {
-            return "El costo no puede ser negativo.";
-        }
+        if (fechaReal == null) return "Debe ingresar una fecha válida.";
+        if (tiempoRealHoras <= 0) return "El tiempo real debe ser mayor que cero.";
+        if (diagnosticoFinal == null || diagnosticoFinal.isBlank())
+            return "Debe ingresar el diagnóstico final.";
+        if (firmaTecnico == null || firmaTecnico.isBlank())
+            return "Debe ingresar la firma o nombre del técnico.";
 
-        boolean finalizada = ordenService.finalizarOrdenCorrectiva(
-                idOrden, fechaFinalizacion, accionesRealizadas, costo
+        boolean completada = ordenService.completarOrdenPreventiva(
+                idOrden, fechaReal, tiempoRealHoras, diagnosticoFinal, firmaTecnico
         );
 
-        return finalizada ? "Orden finalizada exitosamente."
-                          : "No se pudo finalizar la orden.";
+        return completada ? "Orden completada exitosamente."
+                          : "No se pudo completar la orden.";
     }
 
-    // Marcar una orden como NO reparada
-    public String marcarNoReparada(int idOrden, String motivo) {
+    // ----------------------------------------------------------
+    // CANCELAR ORDEN
+    // ----------------------------------------------------------
+    public String cancelarOrden(int idOrden, String motivo) {
+
         if (motivo == null || motivo.isBlank()) {
-            return "Debe indicar el motivo.";
+            return "Debe indicar el motivo de la cancelación.";
         }
 
-        boolean marcada = ordenService.marcarNoReparada(idOrden, motivo);
+        boolean cancelada = ordenService.cancelarOrdenPreventiva(idOrden, motivo);
 
-        return marcada ? "La orden fue marcada como no reparada."
-                       : "No se pudo actualizar la orden.";
+        return cancelada ? "Orden cancelada correctamente."
+                         : "No se pudo cancelar la orden.";
     }
 
-    // Listar todas las órdenes correctivas
-    public List<OrdenCorrectiva> obtenerOrdenes() {
-        return ordenService.obtenerOrdenesCorrectivas();
+    // ----------------------------------------------------------
+    // AGREGAR MATERIAL A ORDEN
+    // ----------------------------------------------------------
+    public String agregarMaterial(int idOrden, String material) {
+
+        if (material == null || material.isBlank()) {
+            return "Debe indicar un material válido.";
+        }
+
+        boolean agregado = ordenService.agregarMaterialAOrden(idOrden, material);
+
+        return agregado ? "Material agregado a la orden."
+                        : "No se pudo agregar el material.";
     }
 
+    // ----------------------------------------------------------
+    // LISTAR ÓRDENES
+    // ----------------------------------------------------------
+    public List<OrdenPreventiva> obtenerOrdenes() {
+        return ordenService.obtenerOrdenesPreventivas();
+    }
 }
+
+
