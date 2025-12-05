@@ -117,5 +117,11 @@ public class UsuarioController {
     public Usuario buscarPorUsername(String username) {
         return usuarioService.buscarPorUsername(username);
     }
+
+    // Método requerido por la interfaz GUI
+    public Usuario autenticar(String username, String password) {
+        return usuarioService.autenticar(username, password);
+    }
+
 }
 
