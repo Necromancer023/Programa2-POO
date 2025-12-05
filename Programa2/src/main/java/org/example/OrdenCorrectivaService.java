@@ -58,34 +58,35 @@ public class OrdenCorrectivaService {
         return true;
     }
 
-    // Finalizar la orden correctiva
+    // FINALIZAR ORDEN — versión completa
     public boolean finalizarOrdenCorrectiva(int idOrden,
                                             LocalDate fechaFinalizacion,
                                             String accionesRealizadas,
-                                            double costoTotal) {
+                                            String observacionesFinales,
+                                            double costo,
+                                            double horasTrabajadas) {
 
         OrdenCorrectiva orden = buscarOrdenCorrectivaPorId(idOrden);
         if (orden == null) return false;
 
-        // Validaciones de fechas según el PDF
-        if (orden.getFechaAtencion() == null) {
-            return false; // No se puede finalizar sin inicia atención
-        }
+        // No se puede finalizar si no se inició
+        if (orden.getFechaAtencion() == null) return false;
 
-        if (fechaFinalizacion.isBefore(orden.getFechaAtencion())) {
-            return false; // No puede terminar antes de que comenzó
-        }
+        // La finalización no puede ser antes que la fecha de atención
+        if (fechaFinalizacion.isBefore(orden.getFechaAtencion())) return false;
 
-        // Finaliza la orden con datos básicos (los demás valores son llenados desde el controller)
-        orden.setFechaFinalizacion(fechaFinalizacion);
-        orden.setAccionesRealizadas(accionesRealizadas);
-        orden.setCostoReparacion(costoTotal);
-        orden.setEstado(OrdenCorrectiva.EstadoOrden.COMPLETADA);
+        orden.finalizarOrden(
+                fechaFinalizacion,
+                accionesRealizadas,
+                observacionesFinales,
+                costo,
+                horasTrabajadas
+        );
 
         return true;
     }
 
-    // Marcar como NO reparada
+    // MARCAR COMO NO REPARADA
     public boolean marcarNoReparada(int idOrden, String motivo) {
         OrdenCorrectiva orden = buscarOrdenCorrectivaPorId(idOrden);
         if (orden == null) return false;
@@ -96,7 +97,7 @@ public class OrdenCorrectivaService {
         return true;
     }
 
-    // Registrar un material usado
+    // REGISTRAR MATERIAL UTILIZADO
     public boolean agregarMaterial(int idOrden, String material) {
         OrdenCorrectiva orden = buscarOrdenCorrectivaPorId(idOrden);
         if (orden == null) return false;
@@ -105,7 +106,7 @@ public class OrdenCorrectivaService {
         return true;
     }
 
-    // Registrar tiempo real empleado
+    // REGISTRAR TIEMPO EMPLEADO
     public boolean registrarTiempo(int idOrden, double horas) {
         OrdenCorrectiva orden = buscarOrdenCorrectivaPorId(idOrden);
         if (orden == null || horas < 0) return false;
@@ -119,3 +120,4 @@ public class OrdenCorrectivaService {
         return ordenesCorrectivas;
     }
 }
+
