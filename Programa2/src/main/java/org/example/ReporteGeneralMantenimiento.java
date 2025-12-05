@@ -1,79 +1,164 @@
 package org.example;
 
-import java.time.LocalDate;
 import java.util.List;
 
 public class ReporteGeneralMantenimiento {
 
-    private Equipo equipo;
-    private int totalOrdenesPreventivas;
-    private int totalOrdenesCorrectivas;
-    private double costoTotalCorrectivas;
-    private LocalDate fechaGeneracion;
-    private String generadoPor; // Nombre del usuario que genera el reporte
+    private EquipoService equipoService;
+    private OrdenPreventivaService ordenPreventivaService;
+    private OrdenCorrectivaService ordenCorrectivaService;
+    private ProgramaPreventivoService programaPreventivoService;
 
-    // -- Constructor --
-    public ReporteGeneralMantenimiento(Equipo equipo, String generadoPor) {
-        this.equipo = equipo;
-        this.generadoPor = generadoPor;
-        this.fechaGeneracion = LocalDate.now();
-        calcularTotales();
+    // Constructor
+    public ReporteGeneralMantenimiento(EquipoService equipoService,
+                                       OrdenPreventivaService ordenPreventivaService,
+                                       OrdenCorrectivaService ordenCorrectivaService,
+                                       ProgramaPreventivoService programaPreventivoService) {
+
+        this.equipoService = equipoService;
+        this.ordenPreventivaService = ordenPreventivaService;
+        this.ordenCorrectivaService = ordenCorrectivaService;
+        this.programaPreventivoService = programaPreventivoService;
     }
 
-    // -- Métodos Internos --
+    // ---------------------------------------------------------
+    // REPORTE DE EQUIPOS
+    // ---------------------------------------------------------
+    public String generarReporteEquipos() {
 
-    private void calcularTotales() {
-        List<OrdenPreventiva> preventivas = equipo.getOrdenesPreventivas();
-        List<OrdenCorrectiva> correctivas = equipo.getOrdenesCorrectivas();
+        StringBuilder sb = new StringBuilder();
+        sb.append("====== REPORTE DE EQUIPOS ======\n\n");
 
-        this.totalOrdenesPreventivas = preventivas.size();
-        this.totalOrdenesCorrectivas = correctivas.size();
+        List<Equipo> equipos = equipoService.obtenerEquipos();
 
-        double totalCostos = 0;
-        for (OrdenCorrectiva orden : correctivas) {
-            totalCostos += orden.getCostoReparacion();
+        if (equipos.isEmpty()) {
+            sb.append("No hay equipos registrados.\n");
+            return sb.toString();
         }
-        this.costoTotalCorrectivas = totalCostos;
+
+        for (Equipo eq : equipos) {
+            sb.append("ID: ").append(eq.getId()).append("\n");
+            sb.append("Descripción: ").append(eq.getDescripcion()).append("\n");
+            sb.append("Ubicación: ").append(eq.getUbicacion()).append("\n");
+            sb.append("Estado: ").append(eq.getEstado()).append("\n");
+            sb.append("Modelo: ").append(eq.getModelo()).append("\n");
+            sb.append("----------\n");
+        }
+
+        return sb.toString();
     }
 
-    // -- Getters --
+    // ---------------------------------------------------------
+    // REPORTE DE ÓRDENES PREVENTIVAS
+    // ---------------------------------------------------------
+    public String generarReporteOrdenesPreventivas() {
 
-    public Equipo getEquipo() {
-        return equipo;
-    }
-    public int getTotalOrdenesPreventivas() {
-        return totalOrdenesPreventivas;
-    }
-    public int getTotalOrdenesCorrectivas() {
-        return totalOrdenesCorrectivas;
-    }
-    public double getCostoTotalCorrectivas() {
-        return costoTotalCorrectivas;
-    }
-    public LocalDate getFechaGeneracion() {
-        return fechaGeneracion;
-    }
-    public String getGeneradoPor() {
-        return generadoPor;
-    }
+        StringBuilder sb = new StringBuilder();
+        sb.append("====== REPORTE ÓRDENES PREVENTIVAS ======\n\n");
 
-    // -- Metodo principal del reporte --
+        List<OrdenPreventiva> lista = ordenPreventivaService.obtenerOrdenesPreventivas();
 
-    public String generarReporte() {
-        return "REPORTE GENERAL DE MANTENIMIENTO\n" +
-                "---------------------------------\n" +
-                "Equipo: " + equipo.getDescripcion() + "\n" +
-                "Tipo: " + equipo.getTipo() + "\n" +
-                "Estado actual: " + equipo.getEstado() + "\n" +
-                "Fecha generación: " + fechaGeneracion + "\n" +
-                "Generado por: " + generadoPor + "\n\n" +
-                "TOTAL ÓRDENES PREVENTIVAS: " + totalOrdenesPreventivas + "\n" +
-                "TOTAL ÓRDENES CORRECTIVAS: " + totalOrdenesCorrectivas + "\n" +
-                "COSTO TOTAL CORRECTIVOS: $" + costoTotalCorrectivas + "\n";
+        if (lista.isEmpty()) {
+            sb.append("No existen órdenes preventivas registradas.\n");
+            return sb.toString();
+        }
+
+        for (OrdenPreventiva op : lista) {
+            sb.append("ID Orden: ").append(op.getIdOrden()).append("\n");
+            sb.append("Equipo: ").append(op.getEquipoAsociado().getDescripcion()).append("\n");
+            sb.append("Fase: ").append(op.getFase().getDescripcion()).append("\n");
+            sb.append("Estado: ").append(op.getEstado()).append("\n");
+            sb.append("Fecha Programada: ").append(op.getFechaProgramada()).append("\n");
+
+            if (op.getFechaEjecucion() != null) {
+                sb.append("Fecha Ejecución: ").append(op.getFechaEjecucion()).append("\n");
+                sb.append("Técnico: ").append(op.getTecnicoAsignado()).append("\n");
+                sb.append("Diagnóstico Final: ").append(op.getDiagnosticoFinal()).append("\n");
+            }
+
+            sb.append("----------\n");
+        }
+
+        return sb.toString();
     }
 
-    @Override
-    public String toString() {
-        return generarReporte();
+    // ---------------------------------------------------------
+    // REPORTE DE ÓRDENES CORRECTIVAS
+    // ---------------------------------------------------------
+    public String generarReporteOrdenesCorrectivas() {
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("====== REPORTE ÓRDENES CORRECTIVAS ======\n\n");
+
+        List<OrdenCorrectiva> lista = ordenCorrectivaService.obtenerOrdenesCorrectivas();
+
+        if (lista.isEmpty()) {
+            sb.append("No existen órdenes correctivas registradas.\n");
+            return sb.toString();
+        }
+
+        for (OrdenCorrectiva oc : lista) {
+            sb.append("ID Orden: ").append(oc.getIdOrdenCorrectiva()).append("\n");
+            sb.append("Equipo: ").append(oc.getEquipoAsociado().getDescripcion()).append("\n");
+            sb.append("Estado: ").append(oc.getEstado()).append("\n");
+            sb.append("Fecha Reporte: ").append(oc.getFechaReporte()).append("\n");
+            sb.append("Descripción Falla: ").append(oc.getDescripcionFalla()).append("\n");
+            sb.append("Causa: ").append(oc.getCausaFalla()).append("\n");
+
+            if (oc.getFechaFinalizacion() != null) {
+                sb.append("Fecha Finalización: ").append(oc.getFechaFinalizacion()).append("\n");
+                sb.append("Acciones: ").append(oc.getAccionesRealizadas()).append("\n");
+                sb.append("Costo: ").append(oc.getCostoReparacion()).append("\n");
+            }
+
+            sb.append("----------\n");
+        }
+
+        return sb.toString();
+    }
+
+    // ---------------------------------------------------------
+    // REPORTE DE PROGRAMAS PREVENTIVOS
+    // ---------------------------------------------------------
+    public String generarReporteProgramasPreventivos() {
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("====== REPORTE PROGRAMAS PREVENTIVOS ======\n\n");
+
+        List<ProgramaPreventivo> programas = programaPreventivoService.obtenerProgramasPreventivos();
+
+        if (programas.isEmpty()) {
+            sb.append("No existen programas preventivos registrados.\n");
+            return sb.toString();
+        }
+
+        for (ProgramaPreventivo pp : programas) {
+            sb.append("ID Programa: ").append(pp.getIdPrograma()).append("\n");
+            sb.append("Fecha Creación: ").append(pp.getFechaCreacion()).append("\n");
+            sb.append("Responsable: ").append(pp.getResponsable()).append("\n");
+            sb.append("Fases registradas: ").append(pp.getFases().size()).append("\n");
+            sb.append("----------\n");
+        }
+
+        return sb.toString();
+    }
+
+    // ---------------------------------------------------------
+    // REPORTE GENERAL (Todos los reportes juntos)
+    // ---------------------------------------------------------
+    public String generarReporteGeneral() {
+
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("========= REPORTE GENERAL MANTENIMIENTO =========\n\n");
+
+        sb.append(generarReporteEquipos()).append("\n");
+        sb.append(generarReporteOrdenesPreventivas()).append("\n");
+        sb.append(generarReporteOrdenesCorrectivas()).append("\n");
+        sb.append(generarReporteProgramasPreventivos()).append("\n");
+
+        sb.append("======== FIN DEL REPORTE ========");
+
+        return sb.toString();
     }
 }
