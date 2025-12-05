@@ -1,9 +1,7 @@
-package org.example.gui;
+package org.example;
 
 import java.awt.*;
 import javax.swing.*;
-import org.example.Usuario;
-import org.example.UsuarioController;
 
 public class LoginFrame extends JFrame {
 

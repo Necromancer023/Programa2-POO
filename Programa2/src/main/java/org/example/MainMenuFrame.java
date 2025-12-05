@@ -1,8 +1,7 @@
-package org.example.gui;
+package org.example;
 
 import java.awt.*;
 import javax.swing.*;
-import org.example.Usuario;
 
 public class MainMenuFrame extends JFrame {
 
