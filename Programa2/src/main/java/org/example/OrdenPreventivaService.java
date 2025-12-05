@@ -6,79 +6,110 @@ import java.util.List;
 
 public class OrdenPreventivaService {
 
-    List<OrdenPreventiva> ordenesPreventivas;
+    private List<OrdenPreventiva> ordenesPreventivas;
 
     // Constructor
     public OrdenPreventivaService() {
         this.ordenesPreventivas = new ArrayList<>();
     }
 
-    // Método para agregar una orden preventiva a la lista
+    // ------------------- CRUD -------------------
+
+    /** Agregar nueva orden preventiva */
     public boolean agregarOrdenPreventiva(OrdenPreventiva orden) {
-        for (OrdenPreventiva ordenExistente : ordenesPreventivas) {
-             if (ordenExistente.getIdOrden() == orden.getIdOrden()) {
-            return false;
-        }
-    }
-    ordenesPreventivas.add(orden);
-    return true;
-    }
-
-    // Método para obtener todas las órdenes preventivas
-    public List<OrdenPreventiva> obtenerOrdenesPreventivas() {
-        return ordenesPreventivas;
-    }
-
-    // Método para buscar órdenes preventivas por ID
-    public OrdenPreventiva buscarOrdenPreventivaPorId(int idOrden) {
-        for (OrdenPreventiva orden : ordenesPreventivas) {
-            if (orden.getIdOrden() == idOrden) {
-                return orden;
+        for (OrdenPreventiva o : ordenesPreventivas) {
+            if (o.getIdOrden() == orden.getIdOrden()) {
+                return false; // Ya existe
             }
         }
-        return null; // Retorna null si no se encuentra la orden
+        ordenesPreventivas.add(orden);
+        return true;
     }
 
-    // Método para eliminar una orden preventiva por ID
+    /** Buscar orden por ID */
+    public OrdenPreventiva buscarOrdenPreventivaPorId(int idOrden) {
+        for (OrdenPreventiva o : ordenesPreventivas) {
+            if (o.getIdOrden() == idOrden) {
+                return o;
+            }
+        }
+        return null;
+    }
+
+    /** Eliminar por ID */
     public boolean eliminarOrdenPreventiva(int idOrden) {
         OrdenPreventiva orden = buscarOrdenPreventivaPorId(idOrden);
         if (orden != null) {
             ordenesPreventivas.remove(orden);
-            return true; // Retorna true si se elimina la orden
+            return true;
         }
-        return false; // Retorna false si no se encuentra la orden
+        return false;
     }
 
-    // Método para iniciar una orden preventiva
-    public boolean iniciarOrdenPreventiva(int idOrden, LocalDate fechaEjecucion) {
-        OrdenPreventiva orden = buscarOrdenPreventivaPorId(idOrden);
-        if (orden != null) {
-            orden.setEstado(OrdenPreventiva.EstadoOrden.EN_PROCESO);
-            orden.setFechaEjecucion(fechaEjecucion);
-            return true; // Retorna true si se inicia la orden
-        }
-        return false; // Retorna false si no se puede iniciar la orden
+    /** Obtener lista de órdenes */
+    public List<OrdenPreventiva> obtenerOrdenesPreventivas() {
+        return ordenesPreventivas;
     }
 
-    // Método para completar una orden preventiva
-    public boolean completarOrdenPreventiva(int idOrden, LocalDate fechaEjecucion, String observaciones) {
+    // ------------------- OPERACIONES DE MANTENIMIENTO -------------------
+
+    /** Iniciar una orden preventiva */
+    public boolean iniciarOrdenPreventiva(int idOrden, LocalDate fechaInicio) {
         OrdenPreventiva orden = buscarOrdenPreventivaPorId(idOrden);
-        if (orden != null) {
-            orden.marcarComoCompletada(fechaEjecucion);
-            orden.setObservaciones(observaciones);
-            return true; // Retorna true si se completa la orden
+
+        if (orden == null) return false;
+
+        // Regla: no puede iniciar una orden cancelada o completada
+        if (orden.getEstado() == OrdenPreventiva.EstadoOrden.CANCELADA ||
+            orden.getEstado() == OrdenPreventiva.EstadoOrden.COMPLETADA) {
+            return false;
         }
-        return false; // Retorna false si no se puede completar la orden
+
+        orden.iniciarOrden(fechaInicio);
+        return true;
     }
 
-    // Método para cancelar una orden preventiva
-    public boolean cancelarOrdenPreventiva(int idOrden, String observaciones) {
+    /** Completar una orden preventiva */
+    public boolean completarOrdenPreventiva(int idOrden,
+                                            LocalDate fechaReal,
+                                            double tiempoRealHoras,
+                                            String diagnosticoFinal,
+                                            String firmaTecnico) {
+
         OrdenPreventiva orden = buscarOrdenPreventivaPorId(idOrden);
-        if (orden != null) {
-            orden.setEstado(OrdenPreventiva.EstadoOrden.CANCELADA);
-            orden.setObservaciones(observaciones);
-            return true; // Retorna true si se cancela la orden
+
+        if (orden == null) return false;
+        if (orden.getEstado() == OrdenPreventiva.EstadoOrden.CANCELADA) return false;
+
+        orden.completarOrden(fechaReal, tiempoRealHoras, diagnosticoFinal, firmaTecnico);
+
+        return true;
+    }
+
+    /** Cancelar una orden preventiva */
+    public boolean cancelarOrdenPreventiva(int idOrden, String motivo) {
+        OrdenPreventiva orden = buscarOrdenPreventivaPorId(idOrden);
+
+        if (orden == null) return false;
+        if (orden.getEstado() == OrdenPreventiva.EstadoOrden.COMPLETADA) return false;
+
+        orden.cancelarOrden(motivo);
+        return true;
+    }
+
+    // ------------------- AGREGAR MATERIALES -------------------
+
+    /** Agregar materiales utilizados a la orden */
+    public boolean agregarMaterialAOrden(int idOrden, String material) {
+        OrdenPreventiva orden = buscarOrdenPreventivaPorId(idOrden);
+
+        if (orden == null || material == null || material.isBlank()) {
+            return false;
         }
-        return false; // Retorna false si no se puede cancelar la orden
+
+        orden.agregarMaterial(material);
+        return true;
     }
 }
+
+
