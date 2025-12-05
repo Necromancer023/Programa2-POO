@@ -18,7 +18,7 @@ public class OrdenPreventiva {
     private int idOrden;
 
     private LocalDate fechaProgramada;
-    private LocalDate fechaEjecucion;        // fecha real
+    private LocalDate fechaEjecucion;     // fecha real
     private LocalDate fechaCancelacion;
 
     private EstadoOrden estado;
@@ -26,23 +26,22 @@ public class OrdenPreventiva {
     private Equipo equipoAsociado;
     private FasePreventiva fase;
 
-    private String tecnicoAsignado;
-    private String firmaDigitalTecnico;
+    private Tecnico tecnicoAsignado;     // Técnico REAL
+    private String firmaDigitalTecnico;  // Firma generada del técnico
 
     private String observaciones;
     private String diagnosticoFinal;
 
-    private double tiempoRealHoras;   // tiempo real trabajado
+    private double tiempoRealHoras;
 
     private List<String> materialesUtilizados;
 
     // ---------------------- CONSTRUCTOR ----------------------
-
     public OrdenPreventiva(int idOrden,
                            LocalDate fechaProgramada,
                            Equipo equipoAsociado,
                            FasePreventiva fase,
-                           String tecnicoAsignado) {
+                           Tecnico tecnicoAsignado) {
 
         this.idOrden = idOrden;
         this.fechaProgramada = fechaProgramada;
@@ -60,134 +59,84 @@ public class OrdenPreventiva {
     }
 
     // ---------------------- GETTERS & SETTERS ----------------------
+    public int getIdOrden() { return idOrden; }
 
-    public int getIdOrden() {
-        return idOrden;
-    }
+    public LocalDate getFechaProgramada() { return fechaProgramada; }
+    public void setFechaProgramada(LocalDate fechaProgramada) { this.fechaProgramada = fechaProgramada; }
 
-    public LocalDate getFechaProgramada() {
-        return fechaProgramada;
-    }
+    public LocalDate getFechaEjecucion() { return fechaEjecucion; }
+    public LocalDate getFechaCancelacion() { return fechaCancelacion; }
 
-    public void setFechaProgramada(LocalDate fechaProgramada) {
-        this.fechaProgramada = fechaProgramada;
-    }
+    public EstadoOrden getEstado() { return estado; }
+    public void setEstado(EstadoOrden estado) { this.estado = estado; }
 
-    public LocalDate getFechaEjecucion() {
-        return fechaEjecucion;
-    }
+    public Equipo getEquipoAsociado() { return equipoAsociado; }
 
-    public LocalDate getFechaCancelacion() {
-        return fechaCancelacion;
-    }
+    public FasePreventiva getFase() { return fase; }
 
-    public EstadoOrden getEstado() {
-        return estado;
-    }
+    public Tecnico getTecnicoAsignado() { return tecnicoAsignado; }
+    public void setTecnicoAsignado(Tecnico tecnicoAsignado) { this.tecnicoAsignado = tecnicoAsignado; }
 
-    public void setEstado(EstadoOrden estado) {
-        this.estado = estado;
-    }
+    public String getObservaciones() { return observaciones; }
+    public void setObservaciones(String observaciones) { this.observaciones = observaciones; }
 
-    public Equipo getEquipoAsociado() {
-        return equipoAsociado;
-    }
+    public String getDiagnosticoFinal() { return diagnosticoFinal; }
+    public void setDiagnosticoFinal(String diagnosticoFinal) { this.diagnosticoFinal = diagnosticoFinal; }
 
-    public FasePreventiva getFase() {
-        return fase;
-    }
+    public double getTiempoRealHoras() { return tiempoRealHoras; }
+    public void setTiempoRealHoras(double tiempoRealHoras) { this.tiempoRealHoras = tiempoRealHoras; }
 
-    public String getTecnicoAsignado() {
-        return tecnicoAsignado;
-    }
+    public List<String> getMaterialesUtilizados() { return materialesUtilizados; }
+    public void agregarMaterial(String material) { this.materialesUtilizados.add(material); }
 
-    public void setTecnicoAsignado(String tecnicoAsignado) {
-        this.tecnicoAsignado = tecnicoAsignado;
-    }
-
-    public String getObservaciones() {
-        return observaciones;
-    }
-
-    public void setObservaciones(String observaciones) {
-        this.observaciones = observaciones;
-    }
-
-    public String getDiagnosticoFinal() {
-        return diagnosticoFinal;
-    }
-
-    public void setDiagnosticoFinal(String diagnosticoFinal) {
-        this.diagnosticoFinal = diagnosticoFinal;
-    }
-
-    public double getTiempoRealHoras() {
-        return tiempoRealHoras;
-    }
-
-    public void setTiempoRealHoras(double tiempoRealHoras) {
-        this.tiempoRealHoras = tiempoRealHoras;
-    }
-
-    public List<String> getMaterialesUtilizados() {
-        return materialesUtilizados;
-    }
-
-    public void agregarMaterial(String material) {
-        this.materialesUtilizados.add(material);
-    }
-
-    public String getFirmaDigitalTecnico() {
-        return firmaDigitalTecnico;
-    }
-
-    public void firmarOrden(String firma) {
-        this.firmaDigitalTecnico = firma;
-    }
+    public String getFirmaDigitalTecnico() { return firmaDigitalTecnico; }
 
     // ---------------------- MÉTODOS FUNCIONALES ----------------------
 
-    /** Marca la orden como iniciada **/
+    /** Iniciar la orden preventiva */
     public void iniciarOrden(LocalDate fechaEjecucion) {
         this.estado = EstadoOrden.EN_PROCESO;
         this.fechaEjecucion = fechaEjecucion;
     }
 
-    /** Marca la orden como completada **/
+    /** Completar la orden preventiva */
     public void completarOrden(LocalDate fechaEjecucionReal,
                                double tiempoReal,
                                String diagnostico,
-                               String firmaTecnico) {
+                               Tecnico tecnico) {
 
         this.estado = EstadoOrden.COMPLETADA;
         this.fechaEjecucion = fechaEjecucionReal;
         this.tiempoRealHoras = tiempoReal;
         this.diagnosticoFinal = diagnostico;
-        this.firmaDigitalTecnico = firmaTecnico;
+
+        // Firma digital basada en el técnico
+        if (tecnico != null) {
+            this.firmaDigitalTecnico = tecnico.getNombreCompleto();
+        } else {
+            this.firmaDigitalTecnico = "TÉCNICO NO REGISTRADO";
+        }
     }
 
-    /** Marca la orden como cancelada **/
+    /** Cancelar la orden preventiva */
     public void cancelarOrden(String motivo) {
         this.estado = EstadoOrden.CANCELADA;
         this.fechaCancelacion = LocalDate.now();
         this.observaciones = motivo;
     }
 
+    // ---------------------- REPRESENTACIÓN ----------------------
     @Override
     public String toString() {
         return "OrdenPreventiva{" +
                 "idOrden=" + idOrden +
                 ", fechaProgramada=" + fechaProgramada +
-                ", fechaEjecucion=" + fechaEjecucion +
+                ", tecnicoAsignado=" + (tecnicoAsignado != null ? tecnicoAsignado.getNombreCompleto() : "SIN ASIGNAR") +
                 ", estado=" + estado +
-                ", equipoAsociado=" + equipoAsociado.getDescripcion() +
-                ", fase=" + fase.getDescripcion() +
-                ", tecnicoAsignado='" + tecnicoAsignado + '\'' +
-                ", diagnosticoFinal='" + diagnosticoFinal + '\'' +
-                ", tiempoRealHoras=" + tiempoRealHoras +
-                ", materialesUtilizados=" + materialesUtilizados +
                 '}';
     }
 }
+
+
 
 

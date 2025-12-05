@@ -55,11 +55,12 @@ public class OrdenPreventivaService {
 
     /** Iniciar una orden preventiva */
     public boolean iniciarOrdenPreventiva(int idOrden, LocalDate fechaInicio) {
+
         OrdenPreventiva orden = buscarOrdenPreventivaPorId(idOrden);
 
         if (orden == null) return false;
 
-        // Regla: no puede iniciar una orden cancelada o completada
+        // Regla: no puede iniciar si está cancelada o completada
         if (orden.getEstado() == OrdenPreventiva.EstadoOrden.CANCELADA ||
             orden.getEstado() == OrdenPreventiva.EstadoOrden.COMPLETADA) {
             return false;
@@ -74,14 +75,24 @@ public class OrdenPreventivaService {
                                             LocalDate fechaReal,
                                             double tiempoRealHoras,
                                             String diagnosticoFinal,
-                                            String firmaTecnico) {
+                                            Tecnico tecnico) {
 
         OrdenPreventiva orden = buscarOrdenPreventivaPorId(idOrden);
 
         if (orden == null) return false;
         if (orden.getEstado() == OrdenPreventiva.EstadoOrden.CANCELADA) return false;
 
-        orden.completarOrden(fechaReal, tiempoRealHoras, diagnosticoFinal, firmaTecnico);
+        // Validación de fecha
+        if (fechaReal.isBefore(orden.getFechaProgramada())) {
+            return false;
+        }
+
+        orden.completarOrden(
+              fechaReal,
+              tiempoRealHoras,
+              diagnosticoFinal,
+              tecnico
+        );
 
         return true;
     }
@@ -111,5 +122,6 @@ public class OrdenPreventivaService {
         return true;
     }
 }
+
 
 

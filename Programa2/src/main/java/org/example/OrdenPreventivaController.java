@@ -7,7 +7,6 @@ public class OrdenPreventivaController {
 
     private OrdenPreventivaService ordenService;
 
-    // Constructor
     public OrdenPreventivaController() {
         this.ordenService = new OrdenPreventivaService();
     }
@@ -17,14 +16,13 @@ public class OrdenPreventivaController {
     // ----------------------------------------------------------
     public String crearOrdenPreventiva(int idOrden, LocalDate fechaProgramada,
                                        Equipo equipoAsociado, FasePreventiva fase,
-                                       String tecnicoAsignado) {
+                                       Tecnico tecnicoAsignado) {
 
         if (idOrden <= 0) return "El ID debe ser mayor que cero.";
         if (fechaProgramada == null) return "Debe indicar una fecha programada.";
         if (equipoAsociado == null) return "Debe seleccionar un equipo asociado.";
         if (fase == null) return "Debe seleccionar una fase preventiva.";
-        if (tecnicoAsignado == null || tecnicoAsignado.isBlank())
-            return "Debe indicar el nombre del técnico asignado.";
+        if (tecnicoAsignado == null) return "Debe seleccionar un técnico válido.";
 
         OrdenPreventiva nueva = new OrdenPreventiva(
                 idOrden,
@@ -78,17 +76,16 @@ public class OrdenPreventivaController {
                                  LocalDate fechaReal,
                                  double tiempoRealHoras,
                                  String diagnosticoFinal,
-                                 String firmaTecnico) {
+                                 Tecnico tecnico) {
 
         if (fechaReal == null) return "Debe ingresar una fecha válida.";
         if (tiempoRealHoras <= 0) return "El tiempo real debe ser mayor que cero.";
         if (diagnosticoFinal == null || diagnosticoFinal.isBlank())
             return "Debe ingresar el diagnóstico final.";
-        if (firmaTecnico == null || firmaTecnico.isBlank())
-            return "Debe ingresar la firma o nombre del técnico.";
+        if (tecnico == null) return "Debe seleccionar un técnico.";
 
         boolean completada = ordenService.completarOrdenPreventiva(
-                idOrden, fechaReal, tiempoRealHoras, diagnosticoFinal, firmaTecnico
+                idOrden, fechaReal, tiempoRealHoras, diagnosticoFinal, tecnico
         );
 
         return completada ? "Orden completada exitosamente."
@@ -132,5 +129,7 @@ public class OrdenPreventivaController {
         return ordenService.obtenerOrdenesPreventivas();
     }
 }
+
+
 
 

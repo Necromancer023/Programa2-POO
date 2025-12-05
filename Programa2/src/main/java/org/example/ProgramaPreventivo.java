@@ -7,13 +7,13 @@ import java.util.List;
 public class ProgramaPreventivo {
 
     private int idPrograma;
-    private String nombrePrograma;       
-    private String objetivo;             
+    private String nombrePrograma;
+    private String objetivo;
     private LocalDate fechaCreacion;
     private String responsable;
     private List<FasePreventiva> fases;
 
-    // --- Constructor ---
+    // --- Constructor correcto ---
     public ProgramaPreventivo(int idPrograma, String nombrePrograma, String objetivo,
                               LocalDate fechaCreacion, String responsable) {
 
@@ -60,7 +60,7 @@ public class ProgramaPreventivo {
         return fases;
     }
 
-    // Métodos
+    // Métodos funcionales
     public void agregarFase(FasePreventiva fase) {
         this.fases.add(fase);
     }
@@ -90,4 +90,5 @@ public class ProgramaPreventivo {
                 '}';
     }
 }
+
 
