@@ -17,7 +17,7 @@ public class EquipoService {
     public boolean agregarEquipo(Equipo equipo) {
         //Validar que no exista un equipo con el mismo ID
         for (Equipo e : equipos) {
-            if (e.getId() == equipo.getId()) {
+            if (e.getIdEquipo() == equipo.getIdEquipo()) {
                 return false; // No se agrega el equipo porque el ID ya existe
                 
             }    
@@ -35,7 +35,7 @@ public class EquipoService {
     // Método para buscar un equipo por ID
     public Equipo buscarEquipoPorId(int id) {
         for (Equipo e: equipos) {
-            if (e.getId() == id) {
+            if (e.getIdEquipo() == id) {
                 return e;
             }
         }
