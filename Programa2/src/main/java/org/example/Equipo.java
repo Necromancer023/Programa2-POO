@@ -15,6 +15,10 @@ public class Equipo {
     private LocalDate fechaAdquisicion;
     private LocalDate fechaPuestaEnServicio;
     private int mesesVidaUtil;
+    private String modelo;
+    private String dimensiones;
+    private double peso;
+    private BitacoraMantenimiento bitacora;
     public enum EstadoEquipo {
         EN_MANTENIMIENTO_PREVENTIVO,
         EN_MANTENIMIENTO_CORRECTIVO,
@@ -38,7 +42,9 @@ public class Equipo {
 
     public Equipo(int id, String descripcion, String tipo, String ubicacion, String fabricante, String serie,
                   LocalDate fechaAdquisicion, LocalDate fechaPuestaEnServicio, int mesesVidaUtil,
-                  double costoInicial, EstadoEquipo estado) {
+                  double costoInicial, EstadoEquipo estado,
+                  String modelo, String dimensiones, double peso) {
+
         this.idEquipo = id;
         this.descripcion = descripcion;
         this.tipo = tipo;
@@ -50,15 +56,22 @@ public class Equipo {
         this.mesesVidaUtil = mesesVidaUtil;
         this.costoInicial = costoInicial;
         this.estado = estado;
+
+        this.modelo = modelo;
+        this.dimensiones = dimensiones;
+        this.peso = peso;
+
         this.componentes = new ArrayList<>();
         this.ordenesPreventivas = new ArrayList<>();
         this.ordenesCorrectivas = new ArrayList<>();
-        this.programaPreventivo = null; 
+        this.programaPreventivo = null;
+        this.bitacora = null;
     }
+
 
     // -- Getters y Setters --
 
-    public int getId() {
+    public int getIdEquipo() {
         return idEquipo;
     }
 
@@ -140,6 +153,32 @@ public class Equipo {
         this.informacionGarantia = informacionGarantia;
     }
 
+    public String getModelo() {
+    return modelo;
+    }
+    public void setModelo(String modelo) {
+        this.modelo = modelo;
+    }
+
+    public String getDimensiones() {
+        return dimensiones;
+    }
+    public void setDimensiones(String dimensiones) {
+        this.dimensiones = dimensiones;
+    }
+    public double getPeso() {
+        return peso;
+    }
+    public void setPeso(double peso) {
+        this.peso = peso;
+    }
+
+    public BitacoraMantenimiento getBitacora() {
+        return bitacora;
+    }
+    public void setBitacora(BitacoraMantenimiento bitacora) {
+        this.bitacora = bitacora;
+    }
 
     // -- Métodos adicionales --
     public void agregarComponente(Equipo componente) {
