@@ -7,89 +7,86 @@ public class EquipoService {
 
     private List<Equipo> equipos;
 
-
     // Constructor
     public EquipoService() {
         this.equipos = new ArrayList<>();
     }
 
-    // Método para agregar un equipo
+    // Agregar equipo
     public boolean agregarEquipo(Equipo equipo) {
-        //Validar que no exista un equipo con el mismo ID
         for (Equipo e : equipos) {
-            if (e.getIdEquipo() == equipo.getIdEquipo()) {
-                return false; // No se agrega el equipo porque el ID ya existe
-                
-            }    
+            if (e.getId() == equipo.getId()) {
+                return false; // ID duplicado
+            }
         }
-
         equipos.add(equipo);
         return true;
     }
 
-    // Método para obtener la lista de equipos
+    // Obtener todos los equipos
     public List<Equipo> obtenerEquipos() {
         return equipos;
     }
 
-    // Método para buscar un equipo por ID
+    // Buscar un equipo por ID
     public Equipo buscarEquipoPorId(int id) {
-        for (Equipo e: equipos) {
-            if (e.getIdEquipo() == id) {
+        for (Equipo e : equipos) {
+            if (e.getId() == id) {
                 return e;
             }
         }
-        return null; // No se encontró el equipo
+        return null;
     }
 
-    // Método para eliminar un equipo por ID
-
+    // Eliminar un equipo por ID
     public boolean eliminarEquipoPorId(int id) {
-        Equipo equipoAEliminar = buscarEquipoPorId(id);
-        if (equipoAEliminar != null) {
-            equipos.remove(equipoAEliminar);
-            return true; // Equipo eliminado exitosamente
+        Equipo equipo = buscarEquipoPorId(id);
+        if (equipo != null) {
+            equipos.remove(equipo);
+            return true;
         }
-        return false; // No se encontró el equipo para eliminar
+        return false;
     }
 
-    // Método para actualizar la ubicación de un equipo por ID
-    public boolean actualizarUbicacionEquipo(int idEquipo, String nuevaUbicacion) {
+    // Actualizar ubicación
+    public boolean actualizarUbicacion(int idEquipo, String nuevaUbicacion) {
         Equipo equipo = buscarEquipoPorId(idEquipo);
         if (equipo != null) {
             equipo.setUbicacion(nuevaUbicacion);
-            return true; // Ubicación actualizada exitosamente
+            return true;
         }
-        return false; // No se encontró el equipo para actualizar
+        return false;
     }
 
-    // Método para actualizar el estado de un equipo por ID
-    public boolean actualizarEstadoEquipo(int idEquipo, Equipo.EstadoEquipo nuevoEstado) {
-        Equipo equipo = buscarEquipoPorId(idEquipo);
-        if (equipo != null) {
-            equipo.setEstado(nuevoEstado);
-            return true; // Estado actualizado exitosamente
-        }
-        return false; // No se encontró el equipo para actualizar
-    }
-
-    // Método para actualizar el fabricante de un equipo por ID
-    public boolean actualizarFabricanteEquipo(int idEquipo, String nuevoFabricante) {
+    // Actualizar fabricante
+    public boolean actualizarFabricante(int idEquipo, String nuevoFabricante) {
         Equipo equipo = buscarEquipoPorId(idEquipo);
         if (equipo != null) {
             equipo.setFabricante(nuevoFabricante);
-            return true; // Fabricante actualizado exitosamente
+            return true;
         }
-        return false; // No se encontró el equipo para actualizar
+        return false;
     }
 
-    // Método para asignar promgrama preventivo
+    // Actualizar estado (sin historial)
+    public boolean actualizarEstado(int idEquipo, Equipo.EstadoEquipo nuevoEstado) {
+        Equipo equipo = buscarEquipoPorId(idEquipo);
+        if (equipo != null) {
+            equipo.setEstado(nuevoEstado);
+            return true;
+        }
+        return false;
+    }
+
+    // Asignar programa preventivo
     public boolean asignarProgramaPreventivo(int idEquipo, ProgramaPreventivo programa) {
         Equipo equipo = buscarEquipoPorId(idEquipo);
         if (equipo != null) {
             equipo.setProgramaPreventivo(programa);
-            return true; // Programa preventivo asignado exitosamente
+            return true;
         }
-        return false; // No se encontró el equipo para asignar el programa
+        return false;
     }
 }
+
+
