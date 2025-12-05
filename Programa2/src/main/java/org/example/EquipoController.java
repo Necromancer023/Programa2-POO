@@ -11,85 +11,104 @@ public class EquipoController {
     public EquipoController() {
         this.equipoService = new EquipoService();
     }
-    
-    // Crear un nuevo equipo
+
+    // Crear equipo
     public String crearEquipo(int id, String descripcion, String tipo, String ubicacion,
                               String fabricante, String serie, LocalDate fechaAdquisicion,
                               LocalDate fechaPuestaEnServicio, int mesesVidaUtil,
-                              double costoInicial, Equipo.EstadoEquipo estado) {
+                              double costoInicial, Equipo.EstadoEquipo estado,
+                              String modelo, String dimensiones, double peso) {
 
-        // Validaciones 
-        if (mesesVidaUtil <= 0) {
-            return "La vida útil debe ser mayor a cero meses.";
+        // ----- VALIDACIONES -----
+        if (id <= 0) return "El ID debe ser mayor que cero.";
+
+        if (descripcion.isBlank() || tipo.isBlank() || ubicacion.isBlank() ||
+            fabricante.isBlank() || serie.isBlank()) {
+            return "Ningún campo requerido puede estar vacío.";
         }
 
-        if (fechaAdquisicion == null || fechaPuestaEnServicio == null) {
+        if (mesesVidaUtil <= 0) return "La vida útil debe ser mayor que cero.";
+
+        if (fechaAdquisicion == null || fechaPuestaEnServicio == null)
             return "Las fechas no pueden ser nulas.";
-        }
 
-        if (fechaPuestaEnServicio.isBefore(fechaAdquisicion)) {
-            return "La fecha de puesta en servicio no puede ser anterior a la de adquisición.";
-        }
+        if (fechaPuestaEnServicio.isBefore(fechaAdquisicion))
+            return "La fecha de puesta en servicio no puede ser anterior a la adquisición.";
 
-        if (descripcion.isBlank() || tipo.isBlank() || ubicacion.isBlank()
-                || fabricante.isBlank() || serie.isBlank()) {
-            return "Ningún campo de texto puede estar vacío.";
-        }
+        if (modelo == null || modelo.isBlank()) return "Debe indicar un modelo.";
+        if (dimensiones == null || dimensiones.isBlank()) return "Debe indicar dimensiones.";
+        if (peso <= 0) return "El peso debe ser mayor que cero.";
 
-        Equipo nuevoEquipo = new Equipo(id, descripcion, tipo, ubicacion, fabricante,
-                                        serie, fechaAdquisicion, fechaPuestaEnServicio,
-                                        mesesVidaUtil, costoInicial, estado);
-        
-        boolean agregado = equipoService.agregarEquipo(nuevoEquipo);
-        return agregado ? "Equipo creado exitosamente." : "Ya existe un equipo con el mismo ID.";
+        // Crear el objeto equipo
+        Equipo nuevo = new Equipo(
+                id, descripcion, tipo, ubicacion, fabricante, serie,
+                fechaAdquisicion, fechaPuestaEnServicio, mesesVidaUtil,
+                costoInicial, estado,
+                modelo, dimensiones, peso
+        );
+
+        boolean agregado = equipoService.agregarEquipo(nuevo);
+
+        return agregado ?
+                "Equipo creado exitosamente." :
+                "Ya existe un equipo con ese ID.";
     }
 
-    // Buscar un equipo por ID
-    public Equipo buscarEquipoPorId(int id) {
+    // Buscar por ID
+    public Equipo buscarEquipo(int id) {
         return equipoService.buscarEquipoPorId(id);
     }
 
     // Eliminar equipo
     public String eliminarEquipo(int id) {
         boolean eliminado = equipoService.eliminarEquipoPorId(id);
-        return eliminado ? "Equipo eliminado." : "Error: No existe el equipo.";
+        return eliminado ? "Equipo eliminado exitosamente." : "No se encontró el equipo.";
     }
 
     // Actualizar ubicación
     public String actualizarUbicacion(int idEquipo, String nuevaUbicacion) {
-        boolean actualizado = equipoService.actualizarUbicacionEquipo(idEquipo, nuevaUbicacion);
-        return actualizado ? "Ubicación actualizada." : "No se encontró el equipo.";
+        return equipoService.actualizarUbicacion(idEquipo, nuevaUbicacion)
+                ? "Ubicación actualizada."
+                : "Equipo no encontrado.";
     }
 
     // Actualizar estado
     public String actualizarEstado(int idEquipo, Equipo.EstadoEquipo nuevoEstado) {
-        boolean estadoActualizado = equipoService.actualizarEstadoEquipo(idEquipo, nuevoEstado);
-        return estadoActualizado ? "Estado actualizado." : "No se encontró el equipo.";
+        return equipoService.actualizarEstado(idEquipo, nuevoEstado)
+                ? "Estado actualizado."
+                : "Equipo no encontrado.";
     }
 
     // Actualizar fabricante
     public String actualizarFabricante(int idEquipo, String nuevoFabricante) {
-        boolean fabricanteActualizado = equipoService.actualizarFabricanteEquipo(idEquipo, nuevoFabricante);
-        return fabricanteActualizado ? "Fabricante actualizado." : "No se encontró el equipo.";
+        return equipoService.actualizarFabricante(idEquipo, nuevoFabricante)
+                ? "Fabricante actualizado."
+                : "Equipo no encontrado.";
     }
 
-    // Listar equipos
+    // Obtener lista de equipos
     public List<Equipo> obtenerEquipos() {
         return equipoService.obtenerEquipos();
     }
 
     // Asignar programa preventivo
     public String asignarProgramaPreventivo(int idEquipo, ProgramaPreventivo programa) {
-        boolean programaAsignado = equipoService.asignarProgramaPreventivo(idEquipo, programa);
-        return programaAsignado ? "Programa asignado." : "No se pudo asignar el programa.";
+        return equipoService.asignarProgramaPreventivo(idEquipo, programa)
+                ? "Programa preventivo asignado con éxito."
+                : "No se pudo asignar el programa.";
     }
 
     // Agregar componente a un equipo
     public String agregarComponente(int idEquipo, Equipo componente) {
-        Equipo equipo = equipoService.buscarEquipoPorId(idEquipo);
-        if (equipo == null) return "Equipo principal no encontrado.";
+        Equipo principal = equipoService.buscarEquipoPorId(idEquipo);
 
-        equipo.agregarComponente(componente);
+        if (principal == null) {
+            return "El equipo principal no existe.";
+        }
+
+        principal.agregarComponente(componente);
         return "Componente añadido correctamente.";
     }
 }
+
+
