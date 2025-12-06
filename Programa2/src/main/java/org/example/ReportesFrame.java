@@ -13,7 +13,7 @@ public class ReportesFrame extends JFrame {
         this.sistema = sistema;
 
         setTitle("Reportes del Sistema");
-        setSize(600, 400);
+        setSize(650, 450);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
@@ -33,10 +33,14 @@ public class ReportesFrame extends JFrame {
         JButton btnGenerar = new JButton("Generar Reporte");
         btnGenerar.addActionListener(e -> generarReporte(combo.getSelectedItem().toString()));
 
+        JButton btnExportar = new JButton("Exportar Reporte");
+        btnExportar.addActionListener(e -> exportarReporte());
+
         JPanel top = new JPanel();
         top.add(new JLabel("Seleccione reporte:"));
         top.add(combo);
         top.add(btnGenerar);
+        top.add(btnExportar);
 
         add(top, BorderLayout.NORTH);
 
@@ -110,7 +114,7 @@ public class ReportesFrame extends JFrame {
     }
 
     private void mostrarInventario() {
-        List<Repuesto> lista = sistema.getRepuestoController().obtenerRepuestos();
+        List<Repuesto> lista = sistema.getInventarioRepuestosController().obtenerRepuestos();
         lista.forEach(r -> areaSalida.append(r + "\n"));
     }
 
@@ -118,5 +122,17 @@ public class ReportesFrame extends JFrame {
         List<AuditoriaMantenimiento> lista = sistema.getAuditoriaController().obtenerAuditoria();
         lista.forEach(a -> areaSalida.append(a + "\n"));
     }
+
+    // ---------------- Exportar --------------------
+    private void exportarReporte() {
+        if (areaSalida.getText().isBlank()) {
+            JOptionPane.showMessageDialog(this, "Nada para exportar");
+            return;
+        }
+
+        // (Simulación) — luego puedes enviar esto a PDF real
+        JOptionPane.showMessageDialog(this, "Reporte exportado exitosamente (demo).");
+    }
 }
+
 

@@ -11,7 +11,7 @@ public class SistemaMantenimiento {
     private AuditoriaMantenimientoController auditoriaController = new AuditoriaMantenimientoController();
     private TecnicoController tecnicoController = new TecnicoController();
     private ProgramaPreventivoController programaPreventivoController = new ProgramaPreventivoController();
-    private InventarioRepuestosController repuestoController = new InventarioRepuestosController();
+    private InventarioRepuestosController inventarioRepuestosController = new InventarioRepuestosController();
 
     public SistemaMantenimiento() {}
 
@@ -39,7 +39,7 @@ public class SistemaMantenimiento {
     public AuditoriaMantenimientoController getAuditoriaController() { return auditoriaController; }
     public TecnicoController getTecnicoController() { return tecnicoController; }
     public ProgramaPreventivoController getProgramaPreventivoController() { return programaPreventivoController; }
-    public InventarioRepuestosController getRepuestoController() { return repuestoController; }
+    public InventarioRepuestosController getInventarioRepuestosController() { return inventarioRepuestosController; }
 }
 
 

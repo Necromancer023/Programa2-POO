@@ -1,15 +1,15 @@
 package org.example;
 
 import java.awt.*;
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 public class MainMenuFrame extends JFrame {
+    private SistemaMantenimiento sistema;
 
-    private Usuario usuarioLogueado;
-
-    public MainMenuFrame(Usuario usuario) {
-        this.usuarioLogueado = usuario;
-
+    public MainMenuFrame(SistemaMantenimiento sistema) {
+        this.sistema = sistema;
         setTitle("Sistema de Mantenimiento - Menú Principal");
         setSize(600, 400);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -17,26 +17,26 @@ public class MainMenuFrame extends JFrame {
 
         JPanel panel = new JPanel(new GridLayout(3, 3, 10, 10));
 
-        panel.add(btn("Equipos"));
-        panel.add(btn("Técnicos"));
-        panel.add(btn("Órdenes preventivas"));
-        panel.add(btn("Órdenes correctivas"));
-        panel.add(btn("Inventario repuestos"));
-        panel.add(btn("Programas preventivos"));
-        panel.add(btn("Reportes"));
-        panel.add(btn("Auditoría"));
-        panel.add(btn("Cerrar sesión"));
+        panel.add(btn("Usuarios", () -> new UsuarioFrame().setVisible(true)));
+        panel.add(btn("Técnicos", () -> new TecnicoFrame().setVisible(true)));
+        panel.add(btn("Equipos", () -> new EquipoFrame().setVisible(true)));
+        panel.add(btn("Órdenes Preventivas", () -> new OrdenPreventivaFrame().setVisible(true)));
+        panel.add(btn("Órdenes Correctivas", () -> new OrdenCorrectivaFrame().setVisible(true)));
+        panel.add(btn("Inventario Repuestos", () -> new InventarioRepuestosFrame(sistema).setVisible(true)));
+        panel.add(btn("Programas Preventivos", () -> new ProgramaPreventivoFrame().setVisible(true)));
+        panel.add(btn("Reportes", () -> new ReportesFrame(sistema).setVisible(true)));
+        panel.add(btn("Auditoría", () -> new AuditoriaFrame(sistema).setVisible(true)));
 
         add(panel);
     }
 
-    private JButton btn(String texto) {
+    private JButton btn(String texto, Runnable action) {
         JButton b = new JButton(texto);
-        b.addActionListener(e -> {
-            JOptionPane.showMessageDialog(this, "Abrir módulo: " + texto);
-        });
+        b.addActionListener(e -> action.run());
         return b;
     }
 }
+
+
 
 

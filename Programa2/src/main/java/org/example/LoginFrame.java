@@ -7,22 +7,10 @@ public class LoginFrame extends JFrame {
 
     private JTextField txtUsuario;
     private JPasswordField txtPassword;
+    private SistemaMantenimiento sistema;
 
-    private UsuarioController usuarioController;
-
-    public LoginFrame() {
-        usuarioController = new UsuarioController();
-
-        // Usuario demo (para ingresar al sistema)
-        usuarioController.crearUsuario(
-                1,
-                "Administrador General",
-                "admin",
-                "admin",
-                Rol.ADMINISTRADOR,
-                "admin@sistema.com",
-                "0000"
-        );
+    public LoginFrame(SistemaMantenimiento sistema) {
+        this.sistema = sistema;
 
         setTitle("Sistema de Mantenimiento - Login");
         setSize(350, 200);
@@ -52,14 +40,16 @@ public class LoginFrame extends JFrame {
         String user = txtUsuario.getText();
         String pass = new String(txtPassword.getPassword());
 
-        Usuario u = usuarioController.obtenerUsuarioAutenticado(user, pass);
+        Usuario u = sistema.getUsuarioController().obtenerUsuarioAutenticado(user, pass);
 
         if (u != null) {
             JOptionPane.showMessageDialog(this, "Bienvenido " + u.getNombreCompleto());
-            new MainMenuFrame(u).setVisible(true);
+            new MainMenuFrame(sistema).setVisible(true);
             dispose();
         } else {
             JOptionPane.showMessageDialog(this, "Credenciales inválidas");
         }
     }
 }
+
+
