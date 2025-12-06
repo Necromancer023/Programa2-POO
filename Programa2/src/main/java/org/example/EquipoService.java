@@ -87,6 +87,41 @@ public class EquipoService {
         }
         return false;
     }
+
+    // ============================================
+    //       VALIDACIONES SOLICITADAS DEL PDF
+    // ============================================
+
+    // Contar órdenes preventivas asociadas a un equipo
+    public int contarOrdenesPreventivas(int idEquipo) {
+        return (int) SistemaMantenimiento.getInstancia()
+                .getOrdenPreventivaController()
+                .obtenerOrdenes()
+                .stream()
+                .filter(op -> op.getEquipoAsociado().getId() == idEquipo)
+                .count();
+    }
+
+    // Contar órdenes correctivas asociadas a un equipo
+    public int contarOrdenesCorrectivas(int idEquipo) {
+        return (int) SistemaMantenimiento.getInstancia()
+                .getOrdenCorrectivaController()
+                .obtenerOrdenes()
+                .stream()
+                .filter(oc -> oc.getEquipoAsociado().getId() == idEquipo)
+                .count();
+    }
+
+    // Validar si tiene órdenes en proceso
+    public boolean tieneOrdenesEnProceso(int idEquipo) {
+        return SistemaMantenimiento.getInstancia()
+                .getOrdenCorrectivaController()
+                .obtenerOrdenes()
+                .stream()
+                .anyMatch(oc -> oc.getEquipoAsociado().getId() == idEquipo &&
+                             oc.getEstado() == OrdenCorrectiva.EstadoOrden.EN_PROCESO);
+    }
+
 }
 
 

@@ -119,5 +119,12 @@ public class OrdenCorrectivaService {
     public List<OrdenCorrectiva> obtenerOrdenesCorrectivas() {
         return ordenesCorrectivas;
     }
+
+    // Contar órdenes correctivas por equipo
+    public long contarOrdenesCorrectivasPorEquipo(int idEquipo) {
+        return obtenerOrdenesCorrectivas().stream()
+                .filter(oc -> oc.getEquipoAsociado().getId() == idEquipo)
+                .count();
+    }
 }
 

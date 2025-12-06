@@ -65,6 +65,7 @@ public class OrdenPreventiva {
     public void setFechaProgramada(LocalDate fechaProgramada) { this.fechaProgramada = fechaProgramada; }
 
     public LocalDate getFechaEjecucion() { return fechaEjecucion; }
+    public void setFechaEjecucion(LocalDate fechaEjecucion) { this.fechaEjecucion = fechaEjecucion; }
     public LocalDate getFechaCancelacion() { return fechaCancelacion; }
 
     public EstadoOrden getEstado() { return estado; }

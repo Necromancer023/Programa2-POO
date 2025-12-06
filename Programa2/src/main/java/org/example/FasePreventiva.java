@@ -24,6 +24,7 @@ public class FasePreventiva {
     private List<String> recursosNecesarios;
     private double tiempoEstimadoHoras;
     private String observaciones;
+    private ProgramaPreventivo programa;
 
     // -- Constructor --
 
@@ -112,6 +113,13 @@ public class FasePreventiva {
     }
     public void eliminarRecurso(String recurso) {
         this.recursosNecesarios.remove(recurso);
+    }
+    public ProgramaPreventivo getPrograma() {
+        return programa;
+    }
+
+    public void setPrograma(ProgramaPreventivo programa) {
+        this.programa = programa;
     }
 
     @Override

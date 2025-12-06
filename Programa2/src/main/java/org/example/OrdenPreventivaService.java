@@ -121,6 +121,41 @@ public class OrdenPreventivaService {
         orden.agregarMaterial(material);
         return true;
     }
+
+    // ============================================
+    // 🔹 Validación: verificar si puede finalizar
+    // ============================================
+    public boolean puedeFinalizar(int idOrden) {
+        OrdenPreventiva op = buscarOrdenPreventivaPorId(idOrden);
+
+        if (op == null) return false;
+
+        // Solo se permite finalizar si está programada o en ejecución
+        return op.getEstado() == OrdenPreventiva.EstadoOrden.PROGRAMADA ||
+            op.getEstado() == OrdenPreventiva.EstadoOrden.EN_PROCESO;
+    }
+
+    // ============================================
+    //  Finalizar Orden Preventiva
+    // ============================================
+    public boolean finalizarOrdenPreventiva(int idOrden, LocalDate fechaRealizacion, String resultado) {
+        OrdenPreventiva op = buscarOrdenPreventivaPorId(idOrden);
+        if (op == null) return false;
+
+        op.setEstado(OrdenPreventiva.EstadoOrden.COMPLETADA);
+        op.setFechaEjecucion(fechaRealizacion);
+        op.setDiagnosticoFinal(resultado);
+        return true;
+    }
+
+    // Conteo de órdenes por equipo
+    public long contarOrdenesPorEquipo(int idEquipo) {
+        return obtenerOrdenesPreventivas().stream()
+                .filter(op -> op.getEquipoAsociado().getId() == idEquipo)
+                .count();
+    }
+
+
 }
 
 

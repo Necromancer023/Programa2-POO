@@ -20,7 +20,7 @@ public class SistemaMantenimiento {
     private AuditoriaMantenimientoController auditoriaController = new AuditoriaMantenimientoController();
     private ProgramaPreventivoController programaPreventivoController = new ProgramaPreventivoController();
     private FallaController fallaController = new FallaController();
-
+    
     private SistemaMantenimiento() {}
 
     // ===== Gestión de sesión =====
@@ -35,7 +35,7 @@ public class SistemaMantenimiento {
                 "Inicio de sesión en el sistema con rol: " + usuario.getRol()
         );
         
-        System.out.println("✅ Usuario logueado: " + usuario.getNombreCompleto() + " (" + usuario.getRol() + ")");
+        System.out.println("Usuario logueado: " + usuario.getNombreCompleto() + " (" + usuario.getRol() + ")");
     }
 
     // Obtener usuario actual
@@ -52,7 +52,7 @@ public class SistemaMantenimiento {
                     "LOGOUT",
                     "Cierre de sesión"
             );
-            System.out.println("👋 Usuario cerró sesión: " + usuarioActual.getNombreCompleto());
+            System.out.println("Usuario cerró sesión: " + usuarioActual.getNombreCompleto());
         }
         this.usuarioActual = null;
     }
@@ -91,6 +91,10 @@ public class SistemaMantenimiento {
     }
     public FallaController getFallaController() {
         return fallaController;
+    }
+
+    public static SistemaMantenimiento getInstancia() {
+        return instancia;
     }
 }
 

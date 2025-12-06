@@ -73,4 +73,18 @@ public class ProgramaPreventivoService {
         }
         return false; // No se encontró el programa preventivo
     }
+
+    // ============================================
+    // Validación: no eliminar si tiene órdenes generadas
+    // ============================================
+    public boolean tieneOrdenesGeneradas(int idPrograma) {
+        return SistemaMantenimiento.getInstancia()
+                .getOrdenPreventivaController()
+                .obtenerOrdenes()
+                .stream()
+                .anyMatch(op -> op.getFase() != null
+                    && op.getFase().getPrograma() != null
+                    && op.getFase().getPrograma().getIdPrograma() == idPrograma);
+    }
+
 }

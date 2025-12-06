@@ -58,7 +58,10 @@ public class MainMenuFrame extends JFrame {
         panel.add(btnAuditoria);
         panel.add(btn("Fallas", () -> new FallaFrame(sistema).setVisible(true)));
         panel.add(btn("Consulta Mantenimiento", () -> new ConsultaMantenimientoFrame(sistema).setVisible(true)));
-        
+        panel.add(btn("Gráfico Costos", () -> new GraficoCostosFrame(sistema).setVisible(true)));
+        panel.add(btn("Gráfico Estados", () -> new GraficoEstadosFrame(sistema).setVisible(true)));
+
+
         // Espacios vacíos
         panel.add(new JLabel());
         panel.add(new JLabel());

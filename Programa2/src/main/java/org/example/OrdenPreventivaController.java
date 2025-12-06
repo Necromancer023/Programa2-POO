@@ -11,124 +11,58 @@ public class OrdenPreventivaController {
         this.ordenService = new OrdenPreventivaService();
     }
 
-    // ----------------------------------------------------------
-    // CREAR ORDEN PREVENTIVA
-    // ----------------------------------------------------------
-    public String crearOrdenPreventiva(int idOrden, LocalDate fechaProgramada,
-                                       Equipo equipoAsociado, FasePreventiva fase,
-                                       Tecnico tecnicoAsignado) {
+    public String crearOrdenPreventiva(int idOrden,
+                                       LocalDate fechaPlanificada,
+                                       ProgramaPreventivo programa,
+                                       Equipo equipo) {
 
         if (idOrden <= 0) return "El ID debe ser mayor que cero.";
-        if (fechaProgramada == null) return "Debe indicar una fecha programada.";
-        if (equipoAsociado == null) return "Debe seleccionar un equipo asociado.";
-        if (fase == null) return "Debe seleccionar una fase preventiva.";
-        if (tecnicoAsignado == null) return "Debe seleccionar un técnico válido.";
+        if (fechaPlanificada == null) return "Debe ingresar una fecha válida.";
+        if (programa == null) return "Debe seleccionar programa.";
+        if (equipo == null) return "Debe seleccionar equipo.";
 
-        OrdenPreventiva nueva = new OrdenPreventiva(
-                idOrden,
-                fechaProgramada,
-                equipoAsociado,
-                fase,
-                tecnicoAsignado
+        // El programa debe tener al menos 1 fase para generar la orden
+        FasePreventiva fase = programa.obtenerFase(1);
+        if (fase == null) return "El programa preventivo no tiene fases registradas.";
+
+        // Se asigna sin técnico inicialmente (puedes agregar asignación después)
+        OrdenPreventiva nuevo = new OrdenPreventiva(
+            idOrden,
+            fechaPlanificada,
+            equipo,
+            fase,
+            null  // Técnico no asignado aún
         );
 
-        boolean creada = ordenService.agregarOrdenPreventiva(nueva);
+        boolean ok = ordenService.agregarOrdenPreventiva(nuevo);
 
-        return creada ? "Orden preventiva creada exitosamente."
-                      : "Ya existe una orden con ese ID.";
+        return ok ? "Orden preventiva registrada."
+                  : "Ya existe una orden con ese ID.";
     }
 
-    // ----------------------------------------------------------
-    // BUSCAR ORDEN
-    // ----------------------------------------------------------
-    public OrdenPreventiva buscarOrden(int idOrden) {
-        return ordenService.buscarOrdenPreventivaPorId(idOrden);
-    }
 
-    // ----------------------------------------------------------
-    // ELIMINAR ORDEN
-    // ----------------------------------------------------------
-    public String eliminarOrden(int idOrden) {
-        boolean eliminada = ordenService.eliminarOrdenPreventiva(idOrden);
-        return eliminada ? "Orden eliminada correctamente."
-                         : "No se encontró la orden.";
-    }
+    public String finalizarOrden(int idOrden,
+                                 LocalDate fechaRealizacion,
+                                 String resultado) {
 
-    // ----------------------------------------------------------
-    // INICIAR ORDEN
-    // ----------------------------------------------------------
-    public String iniciarOrden(int idOrden, LocalDate fechaInicio) {
+        if (fechaRealizacion == null) return "Fecha inválida.";
+        if (resultado == null || resultado.isBlank()) return "Debe indicar resultado.";
 
-        if (fechaInicio == null) {
-            return "Debe ingresar una fecha de inicio válida.";
+        if (!ordenService.puedeFinalizar(idOrden)) {
+            return "No se puede finalizar — La orden aún no está en ejecución o ya está cerrada.";
         }
 
-        boolean iniciada = ordenService.iniciarOrdenPreventiva(idOrden, fechaInicio);
+        boolean ok = ordenService.finalizarOrdenPreventiva(idOrden, fechaRealizacion, resultado);
 
-        return iniciada ? "La orden ha sido iniciada correctamente."
-                        : "No se pudo iniciar la orden.";
+        return ok ? "Orden finalizada."
+                  : "No se pudo finalizar la orden.";
     }
 
-    // ----------------------------------------------------------
-    // COMPLETAR ORDEN
-    // ----------------------------------------------------------
-    public String completarOrden(int idOrden,
-                                 LocalDate fechaReal,
-                                 double tiempoRealHoras,
-                                 String diagnosticoFinal,
-                                 Tecnico tecnico) {
-
-        if (fechaReal == null) return "Debe ingresar una fecha válida.";
-        if (tiempoRealHoras <= 0) return "El tiempo real debe ser mayor que cero.";
-        if (diagnosticoFinal == null || diagnosticoFinal.isBlank())
-            return "Debe ingresar el diagnóstico final.";
-        if (tecnico == null) return "Debe seleccionar un técnico.";
-
-        boolean completada = ordenService.completarOrdenPreventiva(
-                idOrden, fechaReal, tiempoRealHoras, diagnosticoFinal, tecnico
-        );
-
-        return completada ? "Orden completada exitosamente."
-                          : "No se pudo completar la orden.";
-    }
-
-    // ----------------------------------------------------------
-    // CANCELAR ORDEN
-    // ----------------------------------------------------------
-    public String cancelarOrden(int idOrden, String motivo) {
-
-        if (motivo == null || motivo.isBlank()) {
-            return "Debe indicar el motivo de la cancelación.";
-        }
-
-        boolean cancelada = ordenService.cancelarOrdenPreventiva(idOrden, motivo);
-
-        return cancelada ? "Orden cancelada correctamente."
-                         : "No se pudo cancelar la orden.";
-    }
-
-    // ----------------------------------------------------------
-    // AGREGAR MATERIAL A ORDEN
-    // ----------------------------------------------------------
-    public String agregarMaterial(int idOrden, String material) {
-
-        if (material == null || material.isBlank()) {
-            return "Debe indicar un material válido.";
-        }
-
-        boolean agregado = ordenService.agregarMaterialAOrden(idOrden, material);
-
-        return agregado ? "Material agregado a la orden."
-                        : "No se pudo agregar el material.";
-    }
-
-    // ----------------------------------------------------------
-    // LISTAR ÓRDENES
-    // ----------------------------------------------------------
     public List<OrdenPreventiva> obtenerOrdenes() {
         return ordenService.obtenerOrdenesPreventivas();
     }
 }
+
 
 
 
