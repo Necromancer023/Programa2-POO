@@ -9,142 +9,85 @@ public class TecnicoFrame extends JFrame {
 
     private TecnicoController tecnicoController;
 
-    private JTextField txtId;
-    private JTextField txtNombre;
-    private JTextField txtEspecialidad;
-    private JTextField txtTelefono;
-    private JTextField txtEmail;
-
+    private JTextField txtId, txtNombre, txtEspecialidad, txtTelefono, txtEmail;
     private JTable tabla;
-    private DefaultTableModel modeloTabla;
+    private DefaultTableModel modelo;
 
     public TecnicoFrame() {
+        this(SistemaMantenimiento.getInstance());
+    }
 
-        tecnicoController = new TecnicoController();
+    public TecnicoFrame(SistemaMantenimiento sistema) {
+
+        tecnicoController = sistema.getTecnicoController();
 
         setTitle("Gestión de Técnicos");
-        setSize(600, 380);
+        setSize(600, 400);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
         setLayout(new BorderLayout());
 
-        // PANEL FORMULARIO
-        JPanel panelForm = new JPanel(new GridLayout(5, 2, 5, 5));
+        JPanel form = new JPanel(new GridLayout(5, 2));
 
-        panelForm.add(new JLabel("ID Técnico:"));
+        form.add(new JLabel("ID:"));
         txtId = new JTextField();
-        panelForm.add(txtId);
+        form.add(txtId);
 
-        panelForm.add(new JLabel("Nombre completo:"));
+        form.add(new JLabel("Nombre:"));
         txtNombre = new JTextField();
-        panelForm.add(txtNombre);
+        form.add(txtNombre);
 
-        panelForm.add(new JLabel("Especialidad:"));
+        form.add(new JLabel("Especialidad:"));
         txtEspecialidad = new JTextField();
-        panelForm.add(txtEspecialidad);
+        form.add(txtEspecialidad);
 
-        panelForm.add(new JLabel("Teléfono:"));
+        form.add(new JLabel("Teléfono:"));
         txtTelefono = new JTextField();
-        panelForm.add(txtTelefono);
+        form.add(txtTelefono);
 
-        panelForm.add(new JLabel("Email:"));
+        form.add(new JLabel("Email:"));
         txtEmail = new JTextField();
-        panelForm.add(txtEmail);
+        form.add(txtEmail);
 
-        add(panelForm, BorderLayout.NORTH);
+        add(form, BorderLayout.NORTH);
 
-        // BOTÓN DE REGISTRO
-        JButton btnRegistrar = new JButton("Registrar Técnico");
-        btnRegistrar.addActionListener(e -> registrarTecnico());
-        add(btnRegistrar, BorderLayout.CENTER);
+        JButton btn = new JButton("Registrar Técnico");
+        btn.addActionListener(e -> registrar());
+        add(btn, BorderLayout.CENTER);
 
-        // TABLA
-        modeloTabla = new DefaultTableModel(
-                new Object[]{"ID", "Nombre", "Especialidad", "Teléfono", "Email"}, 0);
-
-        tabla = new JTable(modeloTabla);
+        modelo = new DefaultTableModel(new Object[]{"ID", "Nombre", "Especialidad", "Estado"}, 0);
+        tabla = new JTable(modelo);
         add(new JScrollPane(tabla), BorderLayout.SOUTH);
-
-        // BOTONES ACCIÓN
-        JPanel panelBotones = new JPanel();
-
-        JButton btnEliminar = new JButton("Eliminar seleccionado");
-        btnEliminar.addActionListener(e -> eliminarTecnico());
-
-        JButton btnRefrescar = new JButton("Actualizar lista");
-        btnRefrescar.addActionListener(e -> cargarTabla());
-
-        panelBotones.add(btnEliminar);
-        panelBotones.add(btnRefrescar);
-
-        add(panelBotones, BorderLayout.AFTER_LAST_LINE);
 
         cargarTabla();
     }
 
-    // ===================================================
-    // MÉTODO PARA REGISTRAR
-    // ===================================================
-    private void registrarTecnico() {
-
+    private void registrar() {
         try {
             int id = Integer.parseInt(txtId.getText());
             String nombre = txtNombre.getText();
-            String especialidad = txtEspecialidad.getText();
-            String telefono = txtTelefono.getText();
+            String esp = txtEspecialidad.getText();
+            String tel = txtTelefono.getText();
             String email = txtEmail.getText();
 
-            String resultado = tecnicoController.crearTecnico(
-                    id, nombre, especialidad, telefono, email
-            );
-
-            JOptionPane.showMessageDialog(this, resultado);
-
+            String msg = tecnicoController.crearTecnico(id, nombre, esp, tel, email);
+            JOptionPane.showMessageDialog(this, msg);
             cargarTabla();
 
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "ID inválido.");
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Datos inválidos");
         }
     }
 
-    // ===================================================
-    // CARGAR TABLA
-    // ===================================================
     private void cargarTabla() {
-        modeloTabla.setRowCount(0);
-
+        modelo.setRowCount(0);
         List<Tecnico> lista = tecnicoController.listarTecnicos();
-
-        for (Tecnico t : lista) {
-            modeloTabla.addRow(new Object[]{
-                    t.getIdTecnico(),             // ajusta si tu getter es distinto
-                    t.getNombreCompleto(),
-                    t.getEspecialidad(),
-                    t.getTelefono(),
-                    t.getEmail()
-            });
-        }
-    }
-
-    // ===================================================
-    // ELIMINAR
-    // ===================================================
-    private void eliminarTecnico() {
-        int fila = tabla.getSelectedRow();
-        if (fila == -1) {
-            JOptionPane.showMessageDialog(this, "Seleccione un técnico.");
-            return;
-        }
-
-        int id = (int) modeloTabla.getValueAt(fila, 0);
-
-        String msg = tecnicoController.eliminarTecnico(id);
-
-        JOptionPane.showMessageDialog(this, msg);
-
-        cargarTabla();
+        lista.forEach(t -> modelo.addRow(new Object[]{
+                t.getIdTecnico(), t.getNombreCompleto(), t.getEspecialidad(), t.isActivo()
+        }));
     }
 }
+
 
 

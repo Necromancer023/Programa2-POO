@@ -38,6 +38,20 @@ public class MainMenuFrame extends JFrame {
         btnProgramas = btn("Programas Preventivos", () -> new ProgramaPreventivoFrame().setVisible(true));
         btnReportes = btn("Reportes", () -> new ReportesFrame(sistema).setVisible(true));
         btnAuditoria = btn("Auditoría", () -> new AuditoriaFrame(sistema).setVisible(true));
+        panel.add(btn("Cerrar sesión", () -> {
+        int confirm = JOptionPane.showConfirmDialog(
+                this,
+                "¿Desea cerrar sesión?",
+                "Confirmar",
+                JOptionPane.YES_NO_OPTION
+        );
+
+        if (confirm == JOptionPane.YES_OPTION) {
+            dispose();  // Cierra el menú actual
+            new LoginFrame(sistema).setVisible(true);  // Vuelve al login
+        }
+    }));
+
 
         // Agregar al panel
         panel.add(btnUsuarios);

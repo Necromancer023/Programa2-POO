@@ -2,81 +2,120 @@ package org.example;
 
 import java.awt.*;
 import java.time.LocalDate;
+import java.util.List;
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 
 public class OrdenCorrectivaFrame extends JFrame {
 
-    private JTextField txtId;
-    private JTextArea txtAcciones;
-    private JTextArea txtObservaciones;
-    private JTextField txtCosto;
-    private JTextField txtHoras;
-
     private OrdenCorrectivaController ordenController;
+    private EquipoController equipoController;
+
+    private JTextField txtId, txtEquipoId, txtDescripcion, txtCausa, txtDiagnostico, txtCosto, txtHoras;
+    private JComboBox<OrdenCorrectiva.Prioridad> comboPrioridad;
+
+    private JTable tabla;
+    private DefaultTableModel modelo;
 
     public OrdenCorrectivaFrame() {
-        ordenController = new OrdenCorrectivaController();
+        this(SistemaMantenimiento.getInstance());
+    }
 
-        setTitle("Finalizar Orden Correctiva");
-        setSize(400, 400);
+    public OrdenCorrectivaFrame(SistemaMantenimiento sistema){
+
+        ordenController = sistema.getOrdenCorrectivaController();
+        equipoController = sistema.getEquipoController();
+
+        setTitle("Órdenes Correctivas");
+        setSize(700, 350);
         setLocationRelativeTo(null);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+
         setLayout(new BorderLayout());
 
-        // Panel principal de formulario
-        JPanel form = new JPanel(new GridLayout(6, 2, 5, 5));
+        JPanel form = new JPanel(new GridLayout(8,2));
 
-        form.add(new JLabel("ID Orden:"));
-        txtId = new JTextField();
-        form.add(txtId);
+        txtId = addField(form,"ID Orden:");
+        txtEquipoId = addField(form,"ID Equipo:");
+        txtDescripcion = addField(form,"Descripción falla:");
+        txtCausa = addField(form,"Causa:");
+        txtDiagnostico = addField(form,"Diagnóstico inicial:");
 
-        form.add(new JLabel("Acciones realizadas:"));
-        txtAcciones = new JTextArea();
-        form.add(new JScrollPane(txtAcciones));
+        form.add(new JLabel("Prioridad:"));
+        comboPrioridad = new JComboBox<>(OrdenCorrectiva.Prioridad.values());
+        form.add(comboPrioridad);
 
-        form.add(new JLabel("Observaciones finales:"));
-        txtObservaciones = new JTextArea();
-        form.add(new JScrollPane(txtObservaciones));
+        txtCosto = addField(form,"Costo final:");
+        txtHoras = addField(form,"Horas trabajo:");
 
-        form.add(new JLabel("Costo total:"));
-        txtCosto = new JTextField();
-        form.add(txtCosto);
+        add(form, BorderLayout.NORTH);
 
-        form.add(new JLabel("Horas trabajadas:"));
-        txtHoras = new JTextField();
-        form.add(txtHoras);
+        JButton btn = new JButton("Registrar Orden");
+        btn.addActionListener(e -> registrar());
+        add(btn, BorderLayout.CENTER);
 
-        JButton btnFinalizar = new JButton("Finalizar Orden");
-        btnFinalizar.addActionListener(e -> finalizarOrden());
+        modelo = new DefaultTableModel(new Object[]{
+                "ID","Equipo","Estado","Prioridad","Costo"
+        }, 0);
 
-        add(form, BorderLayout.CENTER);
-        add(btnFinalizar, BorderLayout.SOUTH);
+        tabla = new JTable(modelo);
+        add(new JScrollPane(tabla), BorderLayout.SOUTH);
+
+        cargarTabla();
     }
 
-    private void finalizarOrden() {
+    private JTextField addField(JPanel panel, String label){
+        panel.add(new JLabel(label));
+        JTextField field = new JTextField();
+        panel.add(field);
+        return field;
+    }
 
+    private void registrar() {
         try {
-            int id = Integer.parseInt(txtId.getText());
-            String acciones = txtAcciones.getText();
-            String observ = txtObservaciones.getText();
-            double costo = Double.parseDouble(txtCosto.getText());
-            double horas = Double.parseDouble(txtHoras.getText());
+            int idOrden = Integer.parseInt(txtId.getText());
+            int idEq = Integer.parseInt(txtEquipoId.getText());
 
-            String resultado = ordenController.finalizarOrden(
-                    id,
-                    LocalDate.now(),
-                    acciones,
-                    observ,
-                    costo,
-                    horas
+            Equipo eq = equipoController.buscarEquipo(idEq);
+            if (eq == null) {
+                JOptionPane.showMessageDialog(this, "Equipo no existe");
+                return;
+            }
+
+            String mensaje = ordenController.crearOrdenCorrectiva(
+                    idOrden,
+                    LocalDate.now(), // ← Aquí va la fecha
+                    eq,
+                    txtDescripcion.getText(),
+                    txtCausa.getText(),
+                    (OrdenCorrectiva.Prioridad) comboPrioridad.getSelectedItem(),
+                    txtDiagnostico.getText()
             );
 
-            JOptionPane.showMessageDialog(this, resultado);
+            JOptionPane.showMessageDialog(this, mensaje);
+            cargarTabla();
 
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Ingrese valores numéricos válidos.");
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error en datos");
         }
     }
+
+
+
+    private void cargarTabla(){
+        modelo.setRowCount(0);
+        List<OrdenCorrectiva> lista = ordenController.obtenerOrdenes();
+
+        lista.forEach(o -> modelo.addRow(new Object[]{
+                o.getIdOrdenCorrectiva(),
+                o.getEquipoAsociado().getDescripcion(),
+                o.getEstado(),
+                o.getPrioridad(),
+                o.getCostoReparacion()
+        }));
+    }
 }
+
 
 
 

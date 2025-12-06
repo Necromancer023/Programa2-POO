@@ -6,7 +6,7 @@ public class Main {
     public static void main(String[] args) {
 
         // Crear instancia del sistema
-        SistemaMantenimiento sistema = new SistemaMantenimiento();
+        SistemaMantenimiento sistema = SistemaMantenimiento.getInstance();
 
         // Usuario admin
         sistema.getUsuarioController().crearUsuario(
@@ -41,7 +41,7 @@ public class Main {
         // Mostrar pantalla splash
         SplashScreen splash = new SplashScreen();
         splash.mostrar();
-        
+
         // Abrir Login
         javax.swing.SwingUtilities.invokeLater(() -> {
             LoginFrame login = new LoginFrame(sistema);

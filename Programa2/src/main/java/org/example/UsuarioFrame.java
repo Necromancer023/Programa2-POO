@@ -9,11 +9,7 @@ public class UsuarioFrame extends JFrame {
 
     private UsuarioController usuarioController;
 
-    private JTextField txtId;
-    private JTextField txtNombre;
-    private JTextField txtUsername;
-    private JTextField txtEmail;
-    private JTextField txtTelefono;
+    private JTextField txtId, txtNombre, txtUsername, txtEmail, txtTelefono;
     private JPasswordField txtPassword;
     private JComboBox<Rol> comboRol;
 
@@ -21,8 +17,12 @@ public class UsuarioFrame extends JFrame {
     private DefaultTableModel modeloTabla;
 
     public UsuarioFrame() {
+        this(SistemaMantenimiento.getInstance());
+    }
 
-        usuarioController = new UsuarioController();
+    public UsuarioFrame(SistemaMantenimiento sistema) {
+
+        usuarioController = sistema.getUsuarioController();
 
         setTitle("Gestión de Usuarios");
         setSize(650, 400);
@@ -90,7 +90,6 @@ public class UsuarioFrame extends JFrame {
     }
 
     private void registrarUsuario() {
-
         try {
             int id = Integer.parseInt(txtId.getText());
             String nombre = txtNombre.getText();
@@ -118,13 +117,13 @@ public class UsuarioFrame extends JFrame {
 
         for (Usuario u : lista) {
             modeloTabla.addRow(new Object[]{
-                u.getIdUsuario(),
-                u.getNombreCompleto(),
-                u.getUsername(),
-                u.getRol(),
-                u.isActivo(),
-                u.getEmail(),
-                u.getTelefono()
+                    u.getIdUsuario(),
+                    u.getNombreCompleto(),
+                    u.getUsername(),
+                    u.getRol(),
+                    u.isActivo(),
+                    u.getEmail(),
+                    u.getTelefono()
             });
         }
     }
@@ -144,4 +143,6 @@ public class UsuarioFrame extends JFrame {
         cargarTabla();
     }
 }
+
+
 
