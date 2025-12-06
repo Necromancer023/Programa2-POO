@@ -4,18 +4,18 @@ public class SistemaMantenimiento {
 
     private Usuario usuarioActual;
 
-    // Controllers principales del sistema
-    public EquipoController equipoController = new EquipoController();
-    public OrdenPreventivaController ordenPreventivaController = new OrdenPreventivaController();
-    public OrdenCorrectivaController ordenCorrectivaController = new OrdenCorrectivaController();
-    public AuditoriaMantenimientoController auditoriaController = new AuditoriaMantenimientoController();
-    public TecnicoController tecnicoController = new TecnicoController();
-    public ProgramaPreventivoController programaPreventivoController = new ProgramaPreventivoController();
+    private UsuarioController usuarioController = new UsuarioController();
+    private EquipoController equipoController = new EquipoController();
+    private OrdenPreventivaController ordenPreventivaController = new OrdenPreventivaController();
+    private OrdenCorrectivaController ordenCorrectivaController = new OrdenCorrectivaController();
+    private AuditoriaMantenimientoController auditoriaController = new AuditoriaMantenimientoController();
+    private TecnicoController tecnicoController = new TecnicoController();
+    private ProgramaPreventivoController programaPreventivoController = new ProgramaPreventivoController();
+    private InventarioRepuestosController repuestoController = new InventarioRepuestosController();
 
-    // Constructor vacío por si la GUI lo usa
     public SistemaMantenimiento() {}
 
-    // LOGIN DEL SISTEMA
+    // ---------- LOGIN ----------
     public void login(Usuario usuario) {
         this.usuarioActual = usuario;
 
@@ -30,5 +30,16 @@ public class SistemaMantenimiento {
     public Usuario getUsuarioActual() {
         return usuarioActual;
     }
+
+    // ---------- GETTERS PARA CONTROLADORES ----------
+    public UsuarioController getUsuarioController() { return usuarioController; }
+    public EquipoController getEquipoController() { return equipoController; }
+    public OrdenPreventivaController getOrdenPreventivaController() { return ordenPreventivaController; }
+    public OrdenCorrectivaController getOrdenCorrectivaController() { return ordenCorrectivaController; }
+    public AuditoriaMantenimientoController getAuditoriaController() { return auditoriaController; }
+    public TecnicoController getTecnicoController() { return tecnicoController; }
+    public ProgramaPreventivoController getProgramaPreventivoController() { return programaPreventivoController; }
+    public InventarioRepuestosController getRepuestoController() { return repuestoController; }
 }
+
 

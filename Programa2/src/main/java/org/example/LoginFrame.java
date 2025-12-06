@@ -13,6 +13,17 @@ public class LoginFrame extends JFrame {
     public LoginFrame() {
         usuarioController = new UsuarioController();
 
+        // Usuario demo (para ingresar al sistema)
+        usuarioController.crearUsuario(
+                1,
+                "Administrador General",
+                "admin",
+                "admin",
+                Rol.ADMINISTRADOR,
+                "admin@sistema.com",
+                "0000"
+        );
+
         setTitle("Sistema de Mantenimiento - Login");
         setSize(350, 200);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -41,7 +52,7 @@ public class LoginFrame extends JFrame {
         String user = txtUsuario.getText();
         String pass = new String(txtPassword.getPassword());
 
-        Usuario u = usuarioController.autenticar(user, pass);
+        Usuario u = usuarioController.obtenerUsuarioAutenticado(user, pass);
 
         if (u != null) {
             JOptionPane.showMessageDialog(this, "Bienvenido " + u.getNombreCompleto());
