@@ -22,17 +22,13 @@ public class InventarioRepuestosFrame extends JFrame {
         setSize(700, 500);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
-        // Panel principal dividido
+        System.out.println(">>> [InventarioFrame] inicializando interfaz");
+
         JTabbedPane tabs = new JTabbedPane();
-
-        // 1) TAB — AGREGAR REPUESTO
         tabs.add("Registrar repuesto", panelAgregar());
-
-        // 2) TAB — MOVIMIENTOS
         tabs.add("Movimientos", panelMovimientos());
-
-        // 3) TAB — LISTAR INVENTARIO
         tabs.add("Inventario", panelLista());
 
         add(tabs, BorderLayout.CENTER);
@@ -75,6 +71,8 @@ public class InventarioRepuestosFrame extends JFrame {
             int stockMin = Integer.parseInt(txtStockMin.getText());
             double costo = Double.parseDouble(txtCosto.getText());
 
+            System.out.println(">>> [InventarioFrame] Registrando repuesto ID " + id);
+
             String resultado = sistema.getInventarioRepuestosController().agregarRepuesto(
                     id,
                     txtNombre.getText(),
@@ -86,6 +84,7 @@ public class InventarioRepuestosFrame extends JFrame {
             );
 
             JOptionPane.showMessageDialog(this, resultado);
+            cargarInventario();
 
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Datos inválidos.");
@@ -134,11 +133,14 @@ public class InventarioRepuestosFrame extends JFrame {
             int id = Integer.parseInt(txtMovId.getText());
             int cant = Integer.parseInt(txtCantidad.getText());
 
+            System.out.println(">>> [InventarioFrame] Entrada ID " + id);
+
             String r = sistema.getInventarioRepuestosController().registrarEntrada(
                     id, cant, txtMotivo.getText(), txtReferencia.getText()
             );
 
             JOptionPane.showMessageDialog(this, r);
+            cargarInventario();
 
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Datos inválidos.");
@@ -150,11 +152,14 @@ public class InventarioRepuestosFrame extends JFrame {
             int id = Integer.parseInt(txtMovId.getText());
             int cant = Integer.parseInt(txtCantidad.getText());
 
+            System.out.println(">>> [InventarioFrame] Salida ID " + id);
+
             String r = sistema.getInventarioRepuestosController().registrarSalida(
                     id, cant, txtMotivo.getText(), txtReferencia.getText()
             );
 
             JOptionPane.showMessageDialog(this, r);
+            cargarInventario();
 
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Datos inválidos.");
@@ -166,11 +171,14 @@ public class InventarioRepuestosFrame extends JFrame {
             int id = Integer.parseInt(txtMovId.getText());
             int nuevoStock = Integer.parseInt(txtNuevoStock.getText());
 
+            System.out.println(">>> [InventarioFrame] Ajuste ID " + id);
+
             String r = sistema.getInventarioRepuestosController().registrarAjuste(
                     id, nuevoStock, txtMotivo.getText()
             );
 
             JOptionPane.showMessageDialog(this, r);
+            cargarInventario();
 
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Datos inválidos.");
@@ -186,7 +194,7 @@ public class InventarioRepuestosFrame extends JFrame {
         salida = new JTextArea();
         salida.setEditable(false);
 
-        JButton btnCargar = new JButton("Cargar Inventario");
+        JButton btnCargar = new JButton("Actualizar Inventario");
         btnCargar.addActionListener(e -> cargarInventario());
 
         p.add(btnCargar, BorderLayout.NORTH);
@@ -197,6 +205,8 @@ public class InventarioRepuestosFrame extends JFrame {
 
     private void cargarInventario() {
         salida.setText("");
+
+        System.out.println(">>> [InventarioFrame] Cargando inventario...");
 
         List<Repuesto> lista = sistema.getInventarioRepuestosController().obtenerRepuestos();
 
@@ -210,4 +220,5 @@ public class InventarioRepuestosFrame extends JFrame {
         }
     }
 }
+
 

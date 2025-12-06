@@ -2,11 +2,12 @@ package org.example;
 
 import java.awt.*;
 import java.time.LocalDate;
+import java.util.List;
 import javax.swing.*;
 
 public class OrdenPreventivaFrame extends JFrame {
 
-    private JTextField txtIdOrden, txtFechaProgramada, txtTiempoReal, txtMaterial, txtDiagnosticoFinal;
+    private JTextField txtIdOrden, txtFechaProgramada, txtTiempoReal, txtDiagnosticoFinal;
     private JComboBox<Equipo> cmbEquipo;
     private JComboBox<FasePreventiva> cmbFase;
     private JComboBox<Tecnico> cmbTecnico;
@@ -17,15 +18,21 @@ public class OrdenPreventivaFrame extends JFrame {
     private TecnicoController tecnicoController;
     private ProgramaPreventivoController programaController;
 
+    // ========== CONSTRUCTOR CORREGIDO ==========
     public OrdenPreventivaFrame() {
+        this(SistemaMantenimiento.getInstance());
+    }
 
-        ordenController = new OrdenPreventivaController();
-        equipoController = new EquipoController();
-        tecnicoController = new TecnicoController();
-        programaController = new ProgramaPreventivoController();
+    public OrdenPreventivaFrame(SistemaMantenimiento sistema) {
+
+        // ✅ Usar controladores del sistema compartido
+        ordenController = sistema.getOrdenPreventivaController();
+        equipoController = sistema.getEquipoController();
+        tecnicoController = sistema.getTecnicoController();
+        programaController = sistema.getProgramaPreventivoController();
 
         setTitle("Gestión de Órdenes Preventivas");
-        setSize(800, 550);
+        setSize(900, 600);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
@@ -33,7 +40,6 @@ public class OrdenPreventivaFrame extends JFrame {
         JPanel form = new JPanel(new GridLayout(7, 2, 5, 5));
 
         txtIdOrden = addField(form, "ID Orden:");
-
         txtFechaProgramada = addField(form, "Fecha Programada (YYYY-MM-DD):");
 
         form.add(new JLabel("Equipo:"));
@@ -49,8 +55,12 @@ public class OrdenPreventivaFrame extends JFrame {
         form.add(cmbTecnico);
 
         txtDiagnosticoFinal = addField(form, "Diagnóstico Final:");
-
         txtTiempoReal = addField(form, "Tiempo real (hrs):");
+
+        // ✅ Botón para recargar datos
+        JButton btnRecargar = new JButton("🔄 Recargar Datos");
+        btnRecargar.addActionListener(e -> cargarDatos());
+        form.add(btnRecargar);
 
         JButton btnCrear = new JButton("Crear Orden");
         btnCrear.addActionListener(e -> crearOrden());
@@ -67,7 +77,7 @@ public class OrdenPreventivaFrame extends JFrame {
         JButton btnMaterial = new JButton("Agregar Material");
         btnMaterial.addActionListener(e -> agregarMaterial());
 
-        JPanel acciones = new JPanel(new GridLayout(5, 1, 5, 5));
+        JPanel acciones = new JPanel(new GridLayout(6, 1, 5, 5));
         acciones.add(btnCrear);
         acciones.add(btnIniciar);
         acciones.add(btnCompletar);
@@ -94,31 +104,64 @@ public class OrdenPreventivaFrame extends JFrame {
     }
 
     private void cargarDatos() {
+        
+        // ===== CARGAR EQUIPOS =====
         cmbEquipo.removeAllItems();
         for (Equipo e : equipoController.obtenerEquipos()) {
             cmbEquipo.addItem(e);
         }
+        System.out.println("✅ Equipos cargados: " + cmbEquipo.getItemCount());
 
+        // ===== CARGAR TÉCNICOS =====
         cmbTecnico.removeAllItems();
-        for (Tecnico t : tecnicoController.listarTecnicos()) {
+        
+        List<Tecnico> tecnicos = tecnicoController.listarTecnicos();
+        System.out.println("🔍 Técnicos disponibles: " + tecnicos.size());
+        
+        if (tecnicos.isEmpty()) {
+            JOptionPane.showMessageDialog(this, 
+                "⚠️ No hay técnicos registrados. Por favor registre técnicos primero.");
+        }
+        
+        for (Tecnico t : tecnicos) {
+            System.out.println("  → Agregando: " + t.getNombreCompleto());
             cmbTecnico.addItem(t);
         }
+        
+        System.out.println("✅ Técnicos en combo: " + cmbTecnico.getItemCount());
 
+        // ===== CARGAR FASES =====
         cmbFase.removeAllItems();
         for (ProgramaPreventivo p : programaController.obtenerProgramas()) {
             for (FasePreventiva f : p.getFases()) {
                 cmbFase.addItem(f);
             }
         }
+        System.out.println("✅ Fases cargadas: " + cmbFase.getItemCount());
     }
 
     private void crearOrden() {
         try {
             int id = Integer.parseInt(txtIdOrden.getText());
             LocalDate fecha = LocalDate.parse(txtFechaProgramada.getText());
+            
             Equipo equipo = (Equipo) cmbEquipo.getSelectedItem();
             FasePreventiva fase = (FasePreventiva) cmbFase.getSelectedItem();
             Tecnico tecnico = (Tecnico) cmbTecnico.getSelectedItem();
+
+            // ✅ Validar selecciones
+            if (equipo == null) {
+                JOptionPane.showMessageDialog(this, "Debe seleccionar un equipo.");
+                return;
+            }
+            if (fase == null) {
+                JOptionPane.showMessageDialog(this, "Debe seleccionar una fase.");
+                return;
+            }
+            if (tecnico == null) {
+                JOptionPane.showMessageDialog(this, "Debe seleccionar un técnico.");
+                return;
+            }
 
             String res = ordenController.crearOrdenPreventiva(
                     id, fecha, equipo, fase, tecnico
@@ -128,7 +171,8 @@ public class OrdenPreventivaFrame extends JFrame {
             listar();
 
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Error de datos.");
+            JOptionPane.showMessageDialog(this, "Error de datos: " + ex.getMessage());
+            ex.printStackTrace();
         }
     }
 
@@ -151,6 +195,11 @@ public class OrdenPreventivaFrame extends JFrame {
             String diag = txtDiagnosticoFinal.getText();
             Tecnico tecnico = (Tecnico) cmbTecnico.getSelectedItem();
 
+            if (tecnico == null) {
+                JOptionPane.showMessageDialog(this, "Debe seleccionar un técnico.");
+                return;
+            }
+
             String res = ordenController.completarOrden(
                     id, fecha, tiempo, diag, tecnico
             );
@@ -159,7 +208,7 @@ public class OrdenPreventivaFrame extends JFrame {
             listar();
 
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Error al completar.");
+            JOptionPane.showMessageDialog(this, "Error al completar: " + ex.getMessage());
         }
     }
 
@@ -167,6 +216,11 @@ public class OrdenPreventivaFrame extends JFrame {
         try {
             int id = Integer.parseInt(txtIdOrden.getText());
             String motivo = JOptionPane.showInputDialog("Indique motivo cancelación");
+            
+            if (motivo == null || motivo.isBlank()) {
+                return;
+            }
+            
             String res = ordenController.cancelarOrden(id, motivo);
             JOptionPane.showMessageDialog(this, res);
             listar();
@@ -179,6 +233,11 @@ public class OrdenPreventivaFrame extends JFrame {
         try {
             int id = Integer.parseInt(txtIdOrden.getText());
             String mat = JOptionPane.showInputDialog("Material utilizado:");
+            
+            if (mat == null || mat.isBlank()) {
+                return;
+            }
+            
             String res = ordenController.agregarMaterial(id, mat);
             JOptionPane.showMessageDialog(this, res);
             listar();

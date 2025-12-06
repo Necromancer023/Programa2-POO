@@ -19,6 +19,7 @@ public class FasePreventiva {
     private String descripcion;
     private Frecuencia frecuencia;
     private int intervaloDias;
+    private int cantidadCiclos;
     private List<String> tareas;
     private List<String> recursosNecesarios;
     private double tiempoEstimadoHoras;
@@ -37,6 +38,21 @@ public class FasePreventiva {
         this.recursosNecesarios = new ArrayList<>();
         this.observaciones = "";
     }
+
+    // Constructor usado por la GUI
+
+    public FasePreventiva(int numeroFase, String descripcion, int intervaloDias, int cantidadCiclos) {
+        this.numeroFase = numeroFase;
+        this.descripcion = descripcion;
+        this.frecuencia = Frecuencia.MENSUAL; // Valor por defecto
+        this.intervaloDias = intervaloDias;
+        this.cantidadCiclos = cantidadCiclos;
+        this.tareas = new ArrayList<>();
+        this.recursosNecesarios = new ArrayList<>();
+        this.tiempoEstimadoHoras = 0;
+        this.observaciones = "";
+    }
+
 
     // -- Getters y Setters --
 
@@ -78,6 +94,9 @@ public class FasePreventiva {
     }
     public void setObservaciones(String observaciones) {
         this.observaciones = observaciones;
+    }
+    public int getCantidadCiclos() {
+        return cantidadCiclos;
     }
 
     // -- Métodos --

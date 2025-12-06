@@ -95,6 +95,12 @@ public class OrdenCorrectivaController {
     public List<OrdenCorrectiva> obtenerOrdenes() {
         return ordenService.obtenerOrdenesCorrectivas();
     }
+
+    // Buscar orden por ID (para validaciones desde UI)
+    public OrdenCorrectiva buscarOrdenPorId(int id) {
+        return ordenService.buscarOrdenCorrectivaPorId(id);
+    }
+
 }
 
 

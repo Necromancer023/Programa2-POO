@@ -8,9 +8,9 @@ public class SistemaMantenimiento {
         return instancia;
     }
 
-    private Usuario usuarioActual;
+    private Usuario usuarioActual;  // ← Esto debe existir
 
-    // Controllers accesibles por la interfaz
+    // Controllers
     private UsuarioController usuarioController = new UsuarioController();
     private TecnicoController tecnicoController = new TecnicoController();
     private EquipoController equipoController = new EquipoController();
@@ -19,10 +19,12 @@ public class SistemaMantenimiento {
     private InventarioRepuestosController repuestoController = new InventarioRepuestosController();
     private AuditoriaMantenimientoController auditoriaController = new AuditoriaMantenimientoController();
     private ProgramaPreventivoController programaPreventivoController = new ProgramaPreventivoController();
+    private FallaController fallaController = new FallaController();
 
     private SistemaMantenimiento() {}
 
-    // LOGIN DEL SISTEMA
+    // ===== Gestión de sesión =====
+    // Iniciar sesión
     public void login(Usuario usuario) {
         this.usuarioActual = usuario;
 
@@ -30,12 +32,29 @@ public class SistemaMantenimiento {
                 usuario.getNombreCompleto(),
                 "USUARIO",
                 "LOGIN",
-                "Inicio de sesión en el sistema"
+                "Inicio de sesión en el sistema con rol: " + usuario.getRol()
         );
+        
+        System.out.println("✅ Usuario logueado: " + usuario.getNombreCompleto() + " (" + usuario.getRol() + ")");
     }
 
+    // Obtener usuario actual
     public Usuario getUsuarioActual() {
         return usuarioActual;
+    }
+    
+    // Cerrar sesión
+    public void logout() {
+        if (usuarioActual != null) {
+            auditoriaController.registrarEvento(
+                    usuarioActual.getNombreCompleto(),
+                    "USUARIO",
+                    "LOGOUT",
+                    "Cierre de sesión"
+            );
+            System.out.println("👋 Usuario cerró sesión: " + usuarioActual.getNombreCompleto());
+        }
+        this.usuarioActual = null;
     }
 
     // ===== Getters de controllers =====
@@ -69,6 +88,9 @@ public class SistemaMantenimiento {
 
     public ProgramaPreventivoController getProgramaPreventivoController() {
         return programaPreventivoController;
+    }
+    public FallaController getFallaController() {
+        return fallaController;
     }
 }
 

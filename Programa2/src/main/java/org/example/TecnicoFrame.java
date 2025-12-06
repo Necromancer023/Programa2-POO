@@ -11,83 +11,144 @@ public class TecnicoFrame extends JFrame {
 
     private JTextField txtId, txtNombre, txtEspecialidad, txtTelefono, txtEmail;
     private JTable tabla;
-    private DefaultTableModel modelo;
+    private DefaultTableModel modeloTabla;
 
+    // ========== CONSTRUCTOR CORREGIDO ==========
     public TecnicoFrame() {
         this(SistemaMantenimiento.getInstance());
     }
 
     public TecnicoFrame(SistemaMantenimiento sistema) {
-
+        // ✅ Usar el controlador del sistema compartido
         tecnicoController = sistema.getTecnicoController();
 
         setTitle("Gestión de Técnicos");
-        setSize(600, 400);
+        setSize(650, 400);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-
         setLayout(new BorderLayout());
 
-        JPanel form = new JPanel(new GridLayout(5, 2));
+        // PANEL FORMULARIO
+        JPanel panelForm = new JPanel(new GridLayout(5, 2, 5, 5));
 
-        form.add(new JLabel("ID:"));
+        panelForm.add(new JLabel("ID:"));
         txtId = new JTextField();
-        form.add(txtId);
+        panelForm.add(txtId);
 
-        form.add(new JLabel("Nombre:"));
+        panelForm.add(new JLabel("Nombre:"));
         txtNombre = new JTextField();
-        form.add(txtNombre);
+        panelForm.add(txtNombre);
 
-        form.add(new JLabel("Especialidad:"));
+        panelForm.add(new JLabel("Especialidad:"));
         txtEspecialidad = new JTextField();
-        form.add(txtEspecialidad);
+        panelForm.add(txtEspecialidad);
 
-        form.add(new JLabel("Teléfono:"));
+        panelForm.add(new JLabel("Teléfono:"));
         txtTelefono = new JTextField();
-        form.add(txtTelefono);
+        panelForm.add(txtTelefono);
 
-        form.add(new JLabel("Email:"));
+        panelForm.add(new JLabel("Email:"));
         txtEmail = new JTextField();
-        form.add(txtEmail);
+        panelForm.add(txtEmail);
 
-        add(form, BorderLayout.NORTH);
+        add(panelForm, BorderLayout.NORTH);
 
-        JButton btn = new JButton("Registrar Técnico");
-        btn.addActionListener(e -> registrar());
-        add(btn, BorderLayout.CENTER);
+        // BOTÓN REGISTRAR
+        JButton btnRegistrar = new JButton("Registrar Técnico");
+        btnRegistrar.addActionListener(e -> registrarTecnico());
+        add(btnRegistrar, BorderLayout.CENTER);
 
-        modelo = new DefaultTableModel(new Object[]{"ID", "Nombre", "Especialidad", "Estado"}, 0);
-        tabla = new JTable(modelo);
-        add(new JScrollPane(tabla), BorderLayout.SOUTH);
+        // TABLA
+        modeloTabla = new DefaultTableModel(
+                new Object[]{"ID", "Nombre", "Especialidad", "Teléfono", "Email", "Activo"}, 0
+        );
+
+        tabla = new JTable(modeloTabla);
+        JScrollPane scroll = new JScrollPane(tabla);
+        add(scroll, BorderLayout.SOUTH);
+
+        // PANEL BOTONES
+        JPanel panelBotones = new JPanel();
+        JButton btnEliminar = new JButton("Eliminar seleccionado");
+        btnEliminar.addActionListener(e -> eliminarTecnico());
+
+        JButton btnActualizar = new JButton("Actualizar lista");
+        btnActualizar.addActionListener(e -> cargarTabla());
+
+        panelBotones.add(btnEliminar);
+        panelBotones.add(btnActualizar);
+
+        add(panelBotones, BorderLayout.AFTER_LAST_LINE);
 
         cargarTabla();
     }
 
-    private void registrar() {
+    private void registrarTecnico() {
         try {
             int id = Integer.parseInt(txtId.getText());
             String nombre = txtNombre.getText();
-            String esp = txtEspecialidad.getText();
-            String tel = txtTelefono.getText();
+            String especialidad = txtEspecialidad.getText();
+            String telefono = txtTelefono.getText();
             String email = txtEmail.getText();
 
-            String msg = tecnicoController.crearTecnico(id, nombre, esp, tel, email);
-            JOptionPane.showMessageDialog(this, msg);
+            String resultado = tecnicoController.crearTecnico(
+                    id, nombre, especialidad, telefono, email
+            );
+
+            JOptionPane.showMessageDialog(this, resultado);
+            
+            // ✅ Limpiar campos después de registrar
+            limpiarCampos();
             cargarTabla();
 
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Datos inválidos");
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "ID inválido.");
         }
     }
 
     private void cargarTabla() {
-        modelo.setRowCount(0);
+        modeloTabla.setRowCount(0);
+
         List<Tecnico> lista = tecnicoController.listarTecnicos();
-        lista.forEach(t -> modelo.addRow(new Object[]{
-                t.getIdTecnico(), t.getNombreCompleto(), t.getEspecialidad(), t.isActivo()
-        }));
+        
+        System.out.println("📋 Cargando " + lista.size() + " técnicos"); // Debug
+        
+        for (Tecnico t : lista) {
+            modeloTabla.addRow(new Object[]{
+                    t.getIdTecnico(),
+                    t.getNombreCompleto(),
+                    t.getEspecialidad(),
+                    t.getTelefono(),
+                    t.getEmail(),
+                    t.isActivo() ? "Sí" : "No"
+            });
+        }
+    }
+
+    private void eliminarTecnico() {
+        int fila = tabla.getSelectedRow();
+        if (fila == -1) {
+            JOptionPane.showMessageDialog(this, "Seleccione un técnico.");
+            return;
+        }
+
+        int id = (int) modeloTabla.getValueAt(fila, 0);
+
+        String msg = tecnicoController.eliminarTecnico(id);
+        JOptionPane.showMessageDialog(this, msg);
+
+        cargarTabla();
+    }
+    
+    private void limpiarCampos() {
+        txtId.setText("");
+        txtNombre.setText("");
+        txtEspecialidad.setText("");
+        txtTelefono.setText("");
+        txtEmail.setText("");
     }
 }
+
 
 
 

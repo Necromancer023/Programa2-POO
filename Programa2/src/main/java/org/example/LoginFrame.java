@@ -43,11 +43,21 @@ public class LoginFrame extends JFrame {
         Usuario u = sistema.getUsuarioController().obtenerUsuarioAutenticado(user, pass);
 
         if (u != null) {
-            JOptionPane.showMessageDialog(this, "Bienvenido " + u.getNombreCompleto());
+            // Guardar el usuario en el sistema
+            sistema.login(u);
+            
+            JOptionPane.showMessageDialog(this, 
+                "Bienvenido " + u.getNombreCompleto() + "\nRol: " + u.getRol());
+            
+            // Abrir menú principal
             new MainMenuFrame(sistema).setVisible(true);
             dispose();
+            
         } else {
-            JOptionPane.showMessageDialog(this, "Credenciales inválidas");
+            JOptionPane.showMessageDialog(this, 
+                "Credenciales inválidas", 
+                "Error de autenticación", 
+                JOptionPane.ERROR_MESSAGE);
         }
     }
 }

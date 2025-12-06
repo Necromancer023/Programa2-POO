@@ -74,7 +74,7 @@ public class Tecnico {
     public void agregarCertificacion(String certificacion) {
         this.certificaciones.add(certificacion);
     }
-
+    
     @Override
     public String toString() {
         return "Tecnico{" +
