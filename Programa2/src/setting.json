@@ -1,6 +1,0 @@
-{
-    "java.project.referencedLibraries": [
-        "libs/jfreechart-1.0.19.jar",
-        "libs/jcommon-1.0.23.jar"
-    ]
-}
