@@ -3,7 +3,7 @@
         "Programa2\\src\\main\\java"
     ],
     "java.project.referencedLibraries": [
-        "libs/jfreechart-1.0.19.jar",
-        "libs/jcommon-1.0.23.jar"
+        "Programa2\\libs\\jcommon-1.0.23.jar",
+        "Programa2\\libs\\jfreechart-1.0.18-demo.jar"
     ]
 }
