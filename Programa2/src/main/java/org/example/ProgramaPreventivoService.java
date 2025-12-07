@@ -1,5 +1,6 @@
 package org.example;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -74,6 +75,20 @@ public class ProgramaPreventivoService {
         return false; // No se encontró el programa preventivo
     }
 
+    // =============================================
+    // GENERAR ID AUTOMÁTICO PARA ÓRDENES PREVENTIVAS
+    // =============================================
+    private int contadorOrdenes = 1;
+
+    /**
+    * Genera un ID incremental para órdenes preventivas.
+    * Puede reemplazarse con lógica más compleja si el PDF pide.
+    */
+    public int generarIdOrden() {
+        return contadorOrdenes++;
+}
+
+
     // ============================================
     // Validación: no eliminar si tiene órdenes generadas
     // ============================================
@@ -86,5 +101,46 @@ public class ProgramaPreventivoService {
                     && op.getFase().getPrograma() != null
                     && op.getFase().getPrograma().getIdPrograma() == idPrograma);
     }
+
+    public void generarOrdenesParaEquipo(Equipo equipo, OrdenPreventivaService ordenService) {
+
+        if (equipo.getEstado() == Equipo.EstadoEquipo.DESECHADO)
+            return;
+
+        ProgramaPreventivo programa = equipo.getProgramaPreventivo();
+        if (programa == null) return;
+
+        LocalDate base = equipo.getFechaPuestaEnServicio();
+
+        for (FasePreventiva fase : programa.getFases()) {
+
+            int ciclos = fase.getCantidadCiclos() == 0 ? 6 : fase.getCantidadCiclos();
+
+            for (int i = 1; i <= ciclos; i++) {
+
+                LocalDate fecha = base.plusDays(fase.getIntervaloDias() * i);
+
+                // Validar si ya existe orden para esa fecha y fase
+                boolean existe = ordenService.obtenerOrdenesPreventivas()
+                        .stream()
+                        .anyMatch(op ->
+                            op.getEquipoAsociado().getId() == equipo.getId()
+                                        && op.getFase().getNumeroFase() == fase.getNumeroFase()
+                                        && op.getFechaProgramada().equals(fecha)
+                        );
+
+                if (!existe) {
+                    ordenService.crearOrdenPreventiva(
+                            generarIdOrden(),
+                            fecha,
+                            equipo,
+                            fase,
+                            null // técnico se asigna luego
+                    );
+                }
+            }
+        }
+    }
+
 
 }

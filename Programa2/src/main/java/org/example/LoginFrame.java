@@ -37,29 +37,39 @@ public class LoginFrame extends JFrame {
     }
 
     private void login() {
-        String user = txtUsuario.getText();
-        String pass = new String(txtPassword.getPassword());
+        String user = txtUsuario.getText().trim();
+        String pass = new String(txtPassword.getPassword()).trim();
+
+        // 🔹 Validación obligatoria para presentación
+        if (user.isBlank() || pass.isBlank()) {
+            JOptionPane.showMessageDialog(this,
+                    "Debe ingresar usuario y contraseña.",
+                    "Faltan datos",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
 
         Usuario u = sistema.getUsuarioController().obtenerUsuarioAutenticado(user, pass);
 
         if (u != null) {
             // Guardar el usuario en el sistema
             sistema.login(u);
-            
-            JOptionPane.showMessageDialog(this, 
-                "Bienvenido " + u.getNombreCompleto() + "\nRol: " + u.getRol());
-            
+
+            JOptionPane.showMessageDialog(this,
+                    "Bienvenido " + u.getNombreCompleto() + "\nRol: " + u.getRol());
+
             // Abrir menú principal
             new MainMenuFrame(sistema).setVisible(true);
             dispose();
-            
+
         } else {
-            JOptionPane.showMessageDialog(this, 
-                "Credenciales inválidas", 
-                "Error de autenticación", 
-                JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this,
+                    "Credenciales inválidas",
+                    "Error de autenticación",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 }
+
 
 

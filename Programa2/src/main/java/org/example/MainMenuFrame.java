@@ -27,9 +27,10 @@ public class MainMenuFrame extends JFrame {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        // GridLayout 4x3 para incluir botón de cerrar sesión
-        JPanel panel = new JPanel(new GridLayout(4, 3, 10, 10));
+        // GridLayout 5x3 para incluir todos los botones sin cortes
+        JPanel panel = new JPanel(new GridLayout(5, 3, 10, 10));
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
 
         // Crear cada botón asignándole su acción
         btnUsuarios = btn("Usuarios", () -> new UsuarioFrame(sistema).setVisible(true));

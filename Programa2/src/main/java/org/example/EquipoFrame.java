@@ -13,17 +13,18 @@ public class EquipoFrame extends JFrame {
     private JTextField txtId, txtDesc, txtTipo, txtUbicacion, txtFabricante, txtSerie,
             txtModelo, txtDimensiones, txtPeso, txtCosto, txtVida;
 
+    private JComboBox<Equipo.EstadoEquipo> comboEstado;
+
     private JTable tabla;
     private DefaultTableModel modeloTabla;
 
-    // ========== CONSTRUCTOR CORREGIDO ==========
+    // CONSTRUCTOR
     public EquipoFrame() {
         this(SistemaMantenimiento.getInstance());
     }
 
     public EquipoFrame(SistemaMantenimiento sistema) {
 
-        // ✅ Usar el controlador del sistema compartido
         equipoController = sistema.getEquipoController();
 
         setTitle("Gestión de Equipos");
@@ -32,7 +33,7 @@ public class EquipoFrame extends JFrame {
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        JPanel panel = new JPanel(new GridLayout(11, 2, 5, 5));
+        JPanel panel = new JPanel(new GridLayout(12, 2, 5, 5));
 
         panel.add(new JLabel("ID:"));
         txtId = new JTextField(); panel.add(txtId);
@@ -66,6 +67,10 @@ public class EquipoFrame extends JFrame {
 
         panel.add(new JLabel("Vida útil (meses):"));
         txtVida = new JTextField("12"); panel.add(txtVida);
+
+        panel.add(new JLabel("Estado del equipo:"));
+        comboEstado = new JComboBox<>(Equipo.EstadoEquipo.values());
+        panel.add(comboEstado);
 
         add(panel, BorderLayout.NORTH);
 
@@ -112,16 +117,18 @@ public class EquipoFrame extends JFrame {
 
             LocalDate hoy = LocalDate.now();
 
+            // Obtener estado seleccionado
+            Equipo.EstadoEquipo estado = (Equipo.EstadoEquipo) comboEstado.getSelectedItem();
+
             String result = equipoController.crearEquipo(
                     id, desc, tipo, ubicacion, fabricante, serie,
                     hoy, hoy, vidaUtil, costo,
-                    Equipo.EstadoEquipo.OPERATIVO,
+                    estado,
                     modelo, dim, peso
             );
 
             JOptionPane.showMessageDialog(this, result);
-            
-            // ✅ Limpiar campos después de registrar
+
             limpiarCampos();
             cargarTabla();
 
@@ -136,15 +143,13 @@ public class EquipoFrame extends JFrame {
     private void cargarTabla() {
         modeloTabla.setRowCount(0);
         List<Equipo> lista = equipoController.obtenerEquipos();
-        
-        System.out.println("📋 Cargando " + lista.size() + " equipos"); // Debug
-        
+
         for (Equipo e : lista) {
             modeloTabla.addRow(new Object[]{
-                    e.getId(), 
-                    e.getDescripcion(), 
-                    e.getTipo(), 
-                    e.getUbicacion(), 
+                    e.getId(),
+                    e.getDescripcion(),
+                    e.getTipo(),
+                    e.getUbicacion(),
                     e.getFabricante(),
                     e.getEstado()
             });
@@ -159,21 +164,21 @@ public class EquipoFrame extends JFrame {
         }
 
         int id = (int) modeloTabla.getValueAt(fila, 0);
-        
+
         int confirmacion = JOptionPane.showConfirmDialog(
-            this, 
+            this,
             "¿Está seguro de eliminar el equipo con ID " + id + "?",
             "Confirmar eliminación",
             JOptionPane.YES_NO_OPTION
         );
-        
+
         if (confirmacion == JOptionPane.YES_OPTION) {
             String resultado = equipoController.eliminarEquipo(id);
             JOptionPane.showMessageDialog(this, resultado);
             cargarTabla();
         }
     }
-    
+
     private void limpiarCampos() {
         txtId.setText("");
         txtDesc.setText("");
@@ -186,8 +191,10 @@ public class EquipoFrame extends JFrame {
         txtPeso.setText("");
         txtCosto.setText("");
         txtVida.setText("12");
+        comboEstado.setSelectedIndex(0);
     }
 }
+
 
 
 

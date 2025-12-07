@@ -11,57 +11,89 @@ public class OrdenPreventivaController {
         this.ordenService = new OrdenPreventivaService();
     }
 
+    // Crear desde UI (llamado por frame)
     public String crearOrdenPreventiva(int idOrden,
-                                       LocalDate fechaPlanificada,
-                                       ProgramaPreventivo programa,
-                                       Equipo equipo) {
+                                       LocalDate fecha,
+                                       Equipo equipo,
+                                       FasePreventiva fase,
+                                       Tecnico tecnico) {
 
-        if (idOrden <= 0) return "El ID debe ser mayor que cero.";
-        if (fechaPlanificada == null) return "Debe ingresar una fecha válida.";
-        if (programa == null) return "Debe seleccionar programa.";
-        if (equipo == null) return "Debe seleccionar equipo.";
+        if (idOrden <= 0) return "ID inválido.";
+        if (fecha == null) return "Debe ingresar fecha válida.";
+        if (equipo == null) return "Debe seleccionar un equipo.";
+        if (fase == null) return "Debe seleccionar una fase.";
 
-        // El programa debe tener al menos 1 fase para generar la orden
-        FasePreventiva fase = programa.obtenerFase(1);
-        if (fase == null) return "El programa preventivo no tiene fases registradas.";
+        boolean ok = ordenService.crearOrdenPreventiva(idOrden, fecha, equipo, fase, tecnico);
 
-        // Se asigna sin técnico inicialmente (puedes agregar asignación después)
-        OrdenPreventiva nuevo = new OrdenPreventiva(
-            idOrden,
-            fechaPlanificada,
-            equipo,
-            fase,
-            null  // Técnico no asignado aún
-        );
-
-        boolean ok = ordenService.agregarOrdenPreventiva(nuevo);
-
-        return ok ? "Orden preventiva registrada."
-                  : "Ya existe una orden con ese ID.";
+        return ok ? "Orden registrada con éxito."
+                  : "No se pudo registrar (ID duplicado).";
     }
 
+    // Crear desde autogeneración
+    public String crearOrdenDesdeAutoGeneracion(int idOrden,
+                                                LocalDate fecha,
+                                                Equipo equipo,
+                                                FasePreventiva fase,
+                                                Tecnico tecnico) {
 
-    public String finalizarOrden(int idOrden,
-                                 LocalDate fechaRealizacion,
-                                 String resultado) {
+        boolean ok = ordenService.crearOrdenPreventiva(idOrden, fecha, equipo, fase, tecnico);
 
-        if (fechaRealizacion == null) return "Fecha inválida.";
-        if (resultado == null || resultado.isBlank()) return "Debe indicar resultado.";
+        return ok ? "Orden preventiva generada automáticamente."
+                  : "La orden ya existe.";
+    }
 
-        if (!ordenService.puedeFinalizar(idOrden)) {
-            return "No se puede finalizar — La orden aún no está en ejecución o ya está cerrada.";
-        }
+    // Iniciar orden
+    public String iniciarOrden(int idOrden, LocalDate fecha) {
 
-        boolean ok = ordenService.finalizarOrdenPreventiva(idOrden, fechaRealizacion, resultado);
+        boolean ok = ordenService.iniciarOrden(idOrden, fecha);
 
-        return ok ? "Orden finalizada."
-                  : "No se pudo finalizar la orden.";
+        return ok ? "Orden iniciada correctamente."
+                  : "No se pudo iniciar la orden.";
+    }
+
+    // Completar orden
+    public String completarOrden(int idOrden,
+                                 LocalDate fecha,
+                                 double tiempo,
+                                 String diagFinal,
+                                 Tecnico tecnico) {
+
+        if (diagFinal == null || diagFinal.isBlank()) return "Debe ingresar diagnóstico final.";
+        if (tiempo < 0) return "Tiempo inválido.";
+
+        boolean ok = ordenService.completarOrden(idOrden, fecha, tiempo, diagFinal, tecnico);
+
+        return ok ? "Orden completada correctamente."
+                  : "No se pudo completar (¿Estado incorrecto?).";
+    }
+
+    // Cancelar orden
+    public String cancelarOrden(int idOrden, String motivo) {
+
+        if (motivo == null || motivo.isBlank()) return "Debe ingresar motivo.";
+
+        boolean ok = ordenService.cancelarOrden(idOrden, motivo);
+
+        return ok ? "Orden cancelada correctamente."
+                  : "No se pudo cancelar.";
+    }
+
+    // Agregar material
+    public String agregarMaterial(int idOrden, String material) {
+
+        if (material == null || material.isBlank()) return "Debe ingresar material.";
+
+        boolean ok = ordenService.agregarMaterial(idOrden, material);
+
+        return ok ? "Material registrado."
+                  : "No se pudo registrar material.";
     }
 
     public List<OrdenPreventiva> obtenerOrdenes() {
-        return ordenService.obtenerOrdenesPreventivas();
+        return ordenService.obtenerOrdenes();
     }
 }
+
 
 
 

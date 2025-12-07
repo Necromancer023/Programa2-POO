@@ -25,12 +25,16 @@ public class UsuarioFrame extends JFrame {
         usuarioController = sistema.getUsuarioController();
 
         setTitle("Gestión de Usuarios");
-        setSize(650, 400);
+        setSize(700, 480);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
-        setLayout(new BorderLayout());
+        // PANEL PRINCIPAL VERTICAL
+        JPanel root = new JPanel();
+        root.setLayout(new BorderLayout());
+        add(root);
 
+        // ===== FORMULARIO SUPERIOR =====
         JPanel panelForm = new JPanel(new GridLayout(7, 2, 5, 5));
 
         panelForm.add(new JLabel("ID:"));
@@ -61,21 +65,29 @@ public class UsuarioFrame extends JFrame {
         txtTelefono = new JTextField();
         panelForm.add(txtTelefono);
 
-        add(panelForm, BorderLayout.NORTH);
+        // Panel contenedor para formulario y botón registrar
+        JPanel topPanel = new JPanel();
+        topPanel.setLayout(new BorderLayout());
+        topPanel.add(panelForm, BorderLayout.NORTH);
 
         JButton btnRegistrar = new JButton("Registrar Usuario");
         btnRegistrar.addActionListener(e -> registrarUsuario());
-        add(btnRegistrar, BorderLayout.CENTER);
+        topPanel.add(btnRegistrar, BorderLayout.CENTER);
 
-        // Tabla
+        root.add(topPanel, BorderLayout.NORTH);
+
+        // ===== TABLA =====
         modeloTabla = new DefaultTableModel(new Object[]{
                 "ID", "Nombre", "Usuario", "Rol", "Activo", "Email", "Teléfono"
         }, 0);
 
         tabla = new JTable(modeloTabla);
-        add(new JScrollPane(tabla), BorderLayout.SOUTH);
+        JScrollPane scroll = new JScrollPane(tabla);
+        root.add(scroll, BorderLayout.CENTER);
 
+        // ===== PANEL BOTONES INFERIORES =====
         JPanel panelBotones = new JPanel();
+
         JButton btnEliminar = new JButton("Eliminar seleccionado");
         btnEliminar.addActionListener(e -> eliminarUsuario());
 
@@ -84,7 +96,8 @@ public class UsuarioFrame extends JFrame {
 
         panelBotones.add(btnEliminar);
         panelBotones.add(btnRefrescar);
-        add(panelBotones, BorderLayout.AFTER_LAST_LINE);
+
+        root.add(panelBotones, BorderLayout.SOUTH);
 
         cargarTabla();
     }
@@ -143,6 +156,10 @@ public class UsuarioFrame extends JFrame {
         cargarTabla();
     }
 }
+
+
+
+
 
 
 

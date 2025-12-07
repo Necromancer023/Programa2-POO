@@ -155,7 +155,70 @@ public class OrdenPreventivaService {
                 .count();
     }
 
+    // Generar nuevo ID de orden preventiva
+    public boolean crearOrdenPreventiva(int idOrden,
+                                    LocalDate fecha,
+                                    Equipo equipo,
+                                    FasePreventiva fase,
+                                    Tecnico tecnico) {
 
+        // Validación: evitar repetir ID
+        for (OrdenPreventiva op : ordenesPreventivas) {
+            if (op.getIdOrden() == idOrden) {
+                return false;
+            }
+        }
+    
+
+        OrdenPreventiva nueva = new OrdenPreventiva(
+                idOrden,
+                fecha,
+                equipo,
+                fase,
+                tecnico
+        );
+
+        ordenesPreventivas.add(nueva);
+        return true;
+    }
+
+    public boolean iniciarOrden(int id, LocalDate fecha) {
+        OrdenPreventiva op = buscarOrdenPreventivaPorId(id);
+        if (op == null) return false;
+        if (op.getEstado() != OrdenPreventiva.EstadoOrden.PROGRAMADA) return false;
+
+        op.iniciarOrden(fecha);
+        return true;
+    }
+
+    public boolean completarOrden(int id, LocalDate fecha, double tiempo, String diag, Tecnico tecnico) {
+        OrdenPreventiva op = buscarOrdenPreventivaPorId(id);
+        if (op == null) return false;
+        if (op.getEstado() != OrdenPreventiva.EstadoOrden.EN_PROCESO) return false;
+
+        op.completarOrden(fecha, tiempo, diag, tecnico);
+        return true;
+    }
+
+    public boolean cancelarOrden(int id, String motivo) {
+        OrdenPreventiva op = buscarOrdenPreventivaPorId(id);
+        if (op == null) return false;
+        if (op.getEstado() == OrdenPreventiva.EstadoOrden.COMPLETADA) return false;
+
+        op.cancelarOrden(motivo);
+        return true;
+    }
+
+    public boolean agregarMaterial(int id, String material) {
+        OrdenPreventiva op = buscarOrdenPreventivaPorId(id);
+        if (op == null) return false;
+        op.agregarMaterial(material);
+        return true;
+    }
+
+    public List<OrdenPreventiva> obtenerOrdenes() {
+        return ordenesPreventivas;
+    }
 }
 
 

@@ -13,22 +13,24 @@ public class TecnicoFrame extends JFrame {
     private JTable tabla;
     private DefaultTableModel modeloTabla;
 
-    // ========== CONSTRUCTOR CORREGIDO ==========
     public TecnicoFrame() {
         this(SistemaMantenimiento.getInstance());
     }
 
     public TecnicoFrame(SistemaMantenimiento sistema) {
-        // ✅ Usar el controlador del sistema compartido
+
         tecnicoController = sistema.getTecnicoController();
 
         setTitle("Gestión de Técnicos");
-        setSize(650, 400);
+        setSize(700, 480);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        setLayout(new BorderLayout());
 
-        // PANEL FORMULARIO
+        // Panel principal
+        JPanel root = new JPanel(new BorderLayout());
+        add(root);
+
+        // -------- FORMULARIO --------
         JPanel panelForm = new JPanel(new GridLayout(5, 2, 5, 5));
 
         panelForm.add(new JLabel("ID:"));
@@ -51,24 +53,28 @@ public class TecnicoFrame extends JFrame {
         txtEmail = new JTextField();
         panelForm.add(txtEmail);
 
-        add(panelForm, BorderLayout.NORTH);
+        // contenedor superior
+        JPanel panelSuperior = new JPanel(new BorderLayout());
+        panelSuperior.add(panelForm, BorderLayout.NORTH);
 
-        // BOTÓN REGISTRAR
         JButton btnRegistrar = new JButton("Registrar Técnico");
         btnRegistrar.addActionListener(e -> registrarTecnico());
-        add(btnRegistrar, BorderLayout.CENTER);
+        panelSuperior.add(btnRegistrar, BorderLayout.CENTER);
 
-        // TABLA
+        root.add(panelSuperior, BorderLayout.NORTH);
+
+        // -------- TABLA --------
         modeloTabla = new DefaultTableModel(
                 new Object[]{"ID", "Nombre", "Especialidad", "Teléfono", "Email", "Activo"}, 0
         );
 
         tabla = new JTable(modeloTabla);
         JScrollPane scroll = new JScrollPane(tabla);
-        add(scroll, BorderLayout.SOUTH);
+        root.add(scroll, BorderLayout.CENTER);
 
-        // PANEL BOTONES
+        // -------- PANEL BOTONES --------
         JPanel panelBotones = new JPanel();
+
         JButton btnEliminar = new JButton("Eliminar seleccionado");
         btnEliminar.addActionListener(e -> eliminarTecnico());
 
@@ -78,7 +84,7 @@ public class TecnicoFrame extends JFrame {
         panelBotones.add(btnEliminar);
         panelBotones.add(btnActualizar);
 
-        add(panelBotones, BorderLayout.AFTER_LAST_LINE);
+        root.add(panelBotones, BorderLayout.SOUTH);
 
         cargarTabla();
     }
@@ -96,8 +102,7 @@ public class TecnicoFrame extends JFrame {
             );
 
             JOptionPane.showMessageDialog(this, resultado);
-            
-            // ✅ Limpiar campos después de registrar
+
             limpiarCampos();
             cargarTabla();
 
@@ -110,9 +115,7 @@ public class TecnicoFrame extends JFrame {
         modeloTabla.setRowCount(0);
 
         List<Tecnico> lista = tecnicoController.listarTecnicos();
-        
-        System.out.println("📋 Cargando " + lista.size() + " técnicos"); // Debug
-        
+
         for (Tecnico t : lista) {
             modeloTabla.addRow(new Object[]{
                     t.getIdTecnico(),
@@ -139,7 +142,7 @@ public class TecnicoFrame extends JFrame {
 
         cargarTabla();
     }
-    
+
     private void limpiarCampos() {
         txtId.setText("");
         txtNombre.setText("");
@@ -148,6 +151,7 @@ public class TecnicoFrame extends JFrame {
         txtEmail.setText("");
     }
 }
+
 
 
 
