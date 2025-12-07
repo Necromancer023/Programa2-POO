@@ -60,6 +60,14 @@ public class FallaFrame extends JFrame {
 
             String r = sistema.getFallaController().crearFalla(id, txtDesc.getText());
 
+            // === Registro Auditoría ===
+            sistema.getAuditoriaController().registrarEvento(
+                    sistema.getUsuarioActual().getNombreCompleto(),
+                    "FALLA",
+                    "ALTA",
+                    "Se registró la falla ID=" + id
+            );
+
             JOptionPane.showMessageDialog(this, r);
 
         } catch (Exception e) {
@@ -84,6 +92,14 @@ public class FallaFrame extends JFrame {
                 System.out.println(">>> [FallaFrame] Eliminando falla " + id);
 
                 String r = sistema.getFallaController().eliminarFalla(id);
+
+                // === Registro Auditoría ===
+                sistema.getAuditoriaController().registrarEvento(
+                        sistema.getUsuarioActual().getNombreCompleto(),
+                        "FALLA",
+                        "BAJA",
+                        "Se eliminó la falla ID=" + id
+                );
 
                 JOptionPane.showMessageDialog(this, r);
 
@@ -130,4 +146,6 @@ public class FallaFrame extends JFrame {
         }
     }
 }
+
+
 

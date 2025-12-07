@@ -33,12 +33,9 @@ public class OrdenPreventivaFrame extends JFrame {
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
-        // ================================================
-        // PANEL SUPERIOR  —  ahora apilado verticalmente
-        // ================================================
-        JPanel form = new JPanel(new GridLayout(4, 4, 5, 5)); // ← 4 filas en lugar de 2
+        // ======== FORMULARIO SUPERIOR ========
+        JPanel form = new JPanel(new GridLayout(4, 4, 5, 5));
 
-        // === FILA 1 ===
         form.add(new JLabel("ID Orden:"));
         txtIdOrden = new JTextField();
         form.add(txtIdOrden);
@@ -47,7 +44,6 @@ public class OrdenPreventivaFrame extends JFrame {
         txtFechaProgramada = new JTextField();
         form.add(txtFechaProgramada);
 
-        // === FILA 2 ===
         form.add(new JLabel("Equipo:"));
         cmbEquipo = new JComboBox<>();
         form.add(cmbEquipo);
@@ -56,7 +52,6 @@ public class OrdenPreventivaFrame extends JFrame {
         cmbTecnico = new JComboBox<>();
         form.add(cmbTecnico);
 
-        // === FILA 3 ===
         form.add(new JLabel("Fase Preventiva:"));
         cmbFase = new JComboBox<>();
         form.add(cmbFase);
@@ -64,11 +59,8 @@ public class OrdenPreventivaFrame extends JFrame {
         JButton btnRecargar = new JButton("🔄 Recargar Datos");
         btnRecargar.addActionListener(e -> cargarDatos());
         form.add(btnRecargar);
-
-        // campo vacío para mantener simetría
         form.add(new JLabel());
 
-        // === FILA 4 ===
         form.add(new JLabel("Diagnóstico Final:"));
         txtDiagnosticoFinal = new JTextField();
         form.add(txtDiagnosticoFinal);
@@ -77,47 +69,46 @@ public class OrdenPreventivaFrame extends JFrame {
         txtTiempoReal = new JTextField();
         form.add(txtTiempoReal);
 
-        // === Panel contenedor ===
         JPanel panelSuperior = new JPanel(new BorderLayout());
         panelSuperior.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         panelSuperior.add(form, BorderLayout.CENTER);
-        panelSuperior.setPreferredSize(new Dimension(900, 150));
+        panelSuperior.setPreferredSize(new Dimension(900, 160));
 
         add(panelSuperior, BorderLayout.PAGE_START);
 
-        // =======================================================
-        // PANEL BOTONES ACCIÓN — sin cambios
-        // =======================================================
+        // ======== PANEL DE ACCIONES ========
+        JPanel acciones = new JPanel(new GridLayout(1, 5, 5, 5));
+
         JButton btnCrear = new JButton("Crear Orden");
         btnCrear.addActionListener(e -> crearOrden());
+        acciones.add(btnCrear);
 
         JButton btnIniciar = new JButton("Iniciar Orden");
         btnIniciar.addActionListener(e -> iniciarOrden());
+        acciones.add(btnIniciar);
 
         JButton btnCompletar = new JButton("Completar Orden");
         btnCompletar.addActionListener(e -> completarOrden());
+        acciones.add(btnCompletar);
 
         JButton btnCancelar = new JButton("Cancelar Orden");
         btnCancelar.addActionListener(e -> cancelarOrden());
+        acciones.add(btnCancelar);
 
         JButton btnMaterial = new JButton("Agregar Material");
         btnMaterial.addActionListener(e -> agregarMaterial());
-
-        JPanel acciones = new JPanel(new GridLayout(6, 1, 5, 5));
-        acciones.add(btnCrear);
-        acciones.add(btnIniciar);
-        acciones.add(btnCompletar);
-        acciones.add(btnCancelar);
         acciones.add(btnMaterial);
 
-        // =======================================================
-        // PANEL LISTADO — sin cambios
-        // =======================================================
+        add(acciones, BorderLayout.CENTER);
+
+        // ======== LISTADO DE ÓRDENES DEBAJO ========
         txtLista = new JTextArea();
         txtLista.setEditable(false);
         txtLista.setFont(new Font("monospaced", Font.PLAIN, 12));
-        add(new JScrollPane(txtLista), BorderLayout.EAST);
-        add(acciones, BorderLayout.SOUTH);
+
+        JScrollPane scroll = new JScrollPane(txtLista);
+        scroll.setPreferredSize(new Dimension(900, 300));
+        add(scroll, BorderLayout.SOUTH);
 
         cargarDatos();
         listar();
@@ -129,8 +120,6 @@ public class OrdenPreventivaFrame extends JFrame {
 
         cmbTecnico.removeAllItems();
         List<Tecnico> tecnicos = tecnicoController.listarTecnicos();
-        if (tecnicos.isEmpty())
-            JOptionPane.showMessageDialog(this,"No hay técnicos registrados.");
         for (Tecnico t : tecnicos) cmbTecnico.addItem(t);
 
         cmbFase.removeAllItems();
@@ -140,22 +129,26 @@ public class OrdenPreventivaFrame extends JFrame {
 
     private void crearOrden() {
         try {
+
+            if (txtIdOrden.getText().isBlank()) {
+                JOptionPane.showMessageDialog(this, "Debe ingresar un ID de orden.");
+                return;
+            }
+
             int id = Integer.parseInt(txtIdOrden.getText());
             LocalDate fecha = LocalDate.parse(txtFechaProgramada.getText());
             Equipo equipo = (Equipo) cmbEquipo.getSelectedItem();
             FasePreventiva fase = (FasePreventiva) cmbFase.getSelectedItem();
             Tecnico tecnico = (Tecnico) cmbTecnico.getSelectedItem();
 
-            if (equipo == null) { JOptionPane.showMessageDialog(this, "Seleccione un equipo."); return; }
-            if (fase == null) { JOptionPane.showMessageDialog(this, "Seleccione una fase."); return; }
-            if (tecnico == null) { JOptionPane.showMessageDialog(this, "Seleccione un técnico."); return; }
-
             String res = ordenController.crearOrdenPreventiva(id, fecha, equipo, fase, tecnico);
             JOptionPane.showMessageDialog(this, res);
+
+            limpiarFormulario();
             listar();
 
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Error de datos: " + ex.getMessage());
+            JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
         }
     }
 
@@ -164,7 +157,9 @@ public class OrdenPreventivaFrame extends JFrame {
             int id = Integer.parseInt(txtIdOrden.getText());
             JOptionPane.showMessageDialog(this, ordenController.iniciarOrden(id, LocalDate.now()));
             listar();
-        } catch (Exception ex) { JOptionPane.showMessageDialog(this, "Error."); }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error.");
+        }
     }
 
     private void completarOrden() {
@@ -174,23 +169,30 @@ public class OrdenPreventivaFrame extends JFrame {
             String diag = txtDiagnosticoFinal.getText();
             Tecnico tecnico = (Tecnico) cmbTecnico.getSelectedItem();
 
-            if (tecnico == null) { JOptionPane.showMessageDialog(this, "Seleccione técnico"); return; }
-
             JOptionPane.showMessageDialog(this,
                     ordenController.completarOrden(id, LocalDate.now(), tiempo, diag, tecnico));
+
+            limpiarFormulario();
             listar();
 
-        } catch (Exception ex) { JOptionPane.showMessageDialog(this, "Error."); }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error.");
+        }
     }
 
     private void cancelarOrden() {
         try {
             int id = Integer.parseInt(txtIdOrden.getText());
             String motivo = JOptionPane.showInputDialog("Indique motivo:");
+
             if (motivo == null || motivo.isBlank()) return;
+
             JOptionPane.showMessageDialog(this, ordenController.cancelarOrden(id, motivo));
+            limpiarFormulario();
             listar();
-        } catch (Exception ex) { JOptionPane.showMessageDialog(this, "Error."); }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error.");
+        }
     }
 
     private void agregarMaterial() {
@@ -200,7 +202,9 @@ public class OrdenPreventivaFrame extends JFrame {
             if (mat == null || mat.isBlank()) return;
             JOptionPane.showMessageDialog(this, ordenController.agregarMaterial(id, mat));
             listar();
-        } catch (Exception ex) { JOptionPane.showMessageDialog(this, "Error."); }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error.");
+        }
     }
 
     private void listar() {
@@ -208,7 +212,15 @@ public class OrdenPreventivaFrame extends JFrame {
         for (OrdenPreventiva o : ordenController.obtenerOrdenes())
             txtLista.append(o.toString() + "\n");
     }
+
+    private void limpiarFormulario() {
+        txtIdOrden.setText("");
+        txtFechaProgramada.setText("");
+        txtDiagnosticoFinal.setText("");
+        txtTiempoReal.setText("");
+    }
 }
+
 
 
 

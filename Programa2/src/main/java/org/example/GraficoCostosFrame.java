@@ -35,7 +35,7 @@ public class GraficoCostosFrame extends JFrame {
         System.out.println(">>> [GraficoCostosFrame] generando datos para gráfico...");
 
         List<Equipo> equipos = sistema.getEquipoController().obtenerEquipos();
-        List<OrdenCorrectiva> órdenes = sistema.getOrdenCorrectivaController().obtenerOrdenes();
+        List<OrdenCorrectiva> ordenes = sistema.getOrdenCorrectivaController().obtenerOrdenes();
 
         double[] costos = new double[equipos.size()];
         String[] etiquetas = new String[equipos.size()];
@@ -47,7 +47,7 @@ public class GraficoCostosFrame extends JFrame {
 
             double costoTotal = 0;
 
-            for (OrdenCorrectiva oc : órdenes) {
+            for (OrdenCorrectiva oc : ordenes) {
                 if (oc.getEquipoAsociado().getId() == eq.getId()) {
                     costoTotal += oc.getCostoReparacion();
                 }
@@ -61,7 +61,7 @@ public class GraficoCostosFrame extends JFrame {
         System.out.println(">>> [GraficoCostosFrame] gráfico actualizado");
     }
 
-    // Panel que dibuja barras manualmente
+    // Panel mejorado para renderizar barras
     private static class GraficoPanel extends JPanel {
 
         private double[] valores = new double[0];
@@ -81,30 +81,61 @@ public class GraficoCostosFrame extends JFrame {
                 return;
             }
 
-            int anchoBarra = 40;
-            int separacion = 30;
-            int x = 50;
-            int baseY = getHeight() - 60;
+            Graphics2D g2 = (Graphics2D) g;
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-            // Buscar valor máximo para escalar barras
+            int width = getWidth();
+            int height = getHeight();
+
+            int baseY = height - 80;
+            int margenIzq = 60;
+
+            // Dibujar ejes
+            g2.setColor(Color.BLACK);
+            g2.drawLine(margenIzq, baseY, width - 20, baseY);   // eje X
+            g2.drawLine(margenIzq, baseY, margenIzq, 40);       // eje Y
+
+            // Obtener máximo
             double max = 1;
             for (double v : valores) if (v > max) max = v;
 
+            // Cálculo de barras
+            int disponibles = width - margenIzq - 40;
+            int anchoBarra = Math.max(40, disponibles / (valores.length * 2));
+            int separacion = anchoBarra;
+
+            int x = margenIzq + 10;
+
             for (int i = 0; i < valores.length; i++) {
-                int altura = (int) ((valores[i] / max) * 250);
+                double valor = valores[i];
 
-                g.setColor(Color.BLUE);
-                g.fillRect(x, baseY - altura, anchoBarra, altura);
+                int altura = (int) ((valor / max) * (height - 140));
 
-                g.setColor(Color.BLACK);
-                g.drawRect(x, baseY - altura, anchoBarra, altura);
+                // Dibujar barra
+                g2.setColor(new Color(50, 90, 230));
+                g2.fillRect(x, baseY - altura, anchoBarra, altura);
 
-                g.drawString(etiquetas[i], x, baseY + 15);
+                g2.setColor(Color.BLACK);
+                g2.drawRect(x, baseY - altura, anchoBarra, altura);
+
+                // Valor encima de la barra
+                g2.drawString(String.format("%.1f", valor), x + 5, baseY - altura - 5);
+
+                // Etiqueta bajo la barra
+                String etiqueta = etiquetas[i];
+                int txtWidth = g2.getFontMetrics().stringWidth(etiqueta);
+                g2.drawString(etiqueta, x + (anchoBarra - txtWidth) / 2, baseY + 15);
 
                 x += anchoBarra + separacion;
             }
+
+            // Título
+            g2.setFont(new Font("Arial", Font.BOLD, 16));
+            g2.drawString("Costo de Mantenimiento por Equipo", margenIzq, 30);
         }
     }
 }
+
+
 
 

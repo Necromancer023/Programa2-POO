@@ -21,7 +21,6 @@ public class ConsultaMantenimientoFrame extends JFrame {
 
         System.out.println(">>> [ConsultaMantenimiento] Inicializando UI...");
 
-        // Crear estructura UI dividida
         JSplitPane split = new JSplitPane(
                 JSplitPane.HORIZONTAL_SPLIT,
                 construirPanelArbol(),
@@ -34,7 +33,7 @@ public class ConsultaMantenimientoFrame extends JFrame {
         actualizarArbol();
     }
 
-    // Panel de árbol
+    // Panel del árbol
     private JPanel construirPanelArbol() {
         JPanel panel = new JPanel(new BorderLayout());
 
@@ -55,7 +54,7 @@ public class ConsultaMantenimientoFrame extends JFrame {
         return panel;
     }
 
-    // Panel derecho con detalles
+    // Panel derecho de detalles
     private JPanel construirPanelDetalle() {
         JPanel panel = new JPanel(new BorderLayout());
 
@@ -67,7 +66,7 @@ public class ConsultaMantenimientoFrame extends JFrame {
         return panel;
     }
 
-    // Construye el árbol desde el sistema
+    // Construcción del árbol
     private void actualizarArbol() {
         System.out.println(">>> [ConsultaMantenimiento] Cargando árbol...");
 
@@ -78,14 +77,12 @@ public class ConsultaMantenimientoFrame extends JFrame {
             DefaultMutableTreeNode nodoEquipo =
                     new DefaultMutableTreeNode("EQUIPO: " + eq.getId() + " - " + eq.getDescripcion());
 
-            // Componentes directos
             for (Equipo comp : eq.getComponentes()) {
                 nodoEquipo.add(new DefaultMutableTreeNode(
                         "COMPONENTE: " + comp.getId() + " - " + comp.getDescripcion()
                 ));
             }
 
-            // Programa preventivo si existe
             if (eq.getProgramaPreventivo() != null) {
 
                 ProgramaPreventivo prog = eq.getProgramaPreventivo();
@@ -103,7 +100,6 @@ public class ConsultaMantenimientoFrame extends JFrame {
                 nodoEquipo.add(nodoProg);
             }
 
-            // Órdenes correctivas asociadas
             DefaultMutableTreeNode nodoCorrectivas = new DefaultMutableTreeNode("Correctivas");
 
             for (OrdenCorrectiva oc : sistema.getOrdenCorrectivaController().obtenerOrdenes()) {
@@ -121,7 +117,7 @@ public class ConsultaMantenimientoFrame extends JFrame {
         arbol.setModel(new DefaultTreeModel(root));
     }
 
-    // Mostrar detalles según nodo
+    // Mostrar información según el nodo seleccionado
     private void mostrarDetalleNodo() {
         TreePath path = arbol.getSelectionPath();
         if (path == null) return;
@@ -142,6 +138,7 @@ public class ConsultaMantenimientoFrame extends JFrame {
         }
     }
 
+    // --- DETALLE EQUIPO ---
     private void mostrarDetalleEquipo(String nodo) {
         try {
             String idStr = nodo.split(":")[1].split("-")[0].trim();
@@ -149,11 +146,38 @@ public class ConsultaMantenimientoFrame extends JFrame {
 
             Equipo eq = sistema.getEquipoController().buscarEquipo(id);
 
+            detalleArea.setText("");
+
             if (eq != null) {
                 detalleArea.append("DETALLES DEL EQUIPO\n");
                 detalleArea.append("------------------------\n");
                 detalleArea.append(eq.toString() + "\n");
                 detalleArea.append("Componentes: " + eq.getComponentes().size() + "\n");
+
+                if (eq.getProgramaPreventivo() != null) {
+                    ProgramaPreventivo prog = eq.getProgramaPreventivo();
+                    detalleArea.append("\n✔ Programa Preventivo Asociado:\n");
+                    detalleArea.append("Nombre: " + prog.getNombrePrograma() + "\n");
+                    detalleArea.append("Responsable: " + prog.getResponsable() + "\n");
+                    detalleArea.append("Fases: " + prog.getFases().size() + "\n");
+                } else {
+                    detalleArea.append("\n⚠ Sin programa preventivo.\n");
+                }
+
+                detalleArea.append("\nÚltimas órdenes correctivas:\n");
+
+                int count = 0;
+                for (OrdenCorrectiva oc : sistema.getOrdenCorrectivaController().obtenerOrdenes()) {
+                    if (oc.getEquipoAsociado().getId() == id) {
+                        if (count < 5) {
+                            detalleArea.append("• OC-" + oc.getIdOrdenCorrectiva()
+                                    + " [" + oc.getEstado() + "]\n");
+                            count++;
+                        }
+                    }
+                }
+
+                if (count == 0) detalleArea.append("Sin correctivas registradas.");
             }
 
         } catch (Exception e) {
@@ -161,6 +185,7 @@ public class ConsultaMantenimientoFrame extends JFrame {
         }
     }
 
+    // --- DETALLE CORRECTIVA ---
     private void mostrarDetalleCorrectiva(String nodo) {
         try {
             String idStr = nodo.split("-")[1].split(" ")[0];
@@ -179,17 +204,63 @@ public class ConsultaMantenimientoFrame extends JFrame {
         }
     }
 
+    // --- DETALLE FASE CON TAREAS, RECURSOS Y MÉTRICAS ---
     private void mostrarDetalleFase(String nodo) {
         try {
             String numStr = nodo.split(" ")[1].replace(":", "");
             int num = Integer.parseInt(numStr);
 
-            detalleArea.append("FASE " + num + "\n----------------------\n");
-            detalleArea.append("Para ver más detalles consulte el módulo Programa Preventivo.");
+            detalleArea.setText("");  
+            detalleArea.append("FASE " + num + "\n");
+            detalleArea.append("----------------------\n");
+
+            TreePath path = arbol.getSelectionPath();
+            if (path == null) return;
+
+            String equipoNodo = path.getPathComponent(1).toString();
+            String idEquipoStr = equipoNodo.split(":")[1].split("-")[0].trim();
+            int idEquipo = Integer.parseInt(idEquipoStr);
+
+            Equipo eq = sistema.getEquipoController().buscarEquipo(idEquipo);
+
+            if (eq == null || eq.getProgramaPreventivo() == null) {
+                detalleArea.append(" No hay detalles del programa preventivo.");
+                return;
+            }
+
+            ProgramaPreventivo prog = eq.getProgramaPreventivo();
+
+            FasePreventiva fase = prog.obtenerFase(num);
+
+            if (fase == null) {
+                detalleArea.append("No se encontró la fase.");
+                return;
+            }
+
+            detalleArea.append("Descripción: " + fase.getDescripcion() + "\n");
+            detalleArea.append("Frecuencia: " + fase.getFrecuencia() + "\n");
+            detalleArea.append("Tiempo estimado (h): " + fase.getTiempoEstimadoHoras() + "\n");
+            detalleArea.append("Observaciones: " + fase.getObservaciones() + "\n");
+            detalleArea.append("Ciclos: " + fase.getCantidadCiclos() + "\n");
+
+            detalleArea.append("\n--- TAREAS ---\n");
+            if (fase.getTareas().isEmpty()) {
+                detalleArea.append("No hay tareas registradas.\n");
+            } else {
+                for (String t : fase.getTareas()) detalleArea.append("• " + t + "\n");
+            }
+
+            detalleArea.append("\n--- RECURSOS ---\n");
+            if (fase.getRecursosNecesarios().isEmpty()) {
+                detalleArea.append("No hay recursos asignados.\n");
+            } else {
+                for (String r : fase.getRecursosNecesarios()) detalleArea.append("• " + r + "\n");
+            }
 
         } catch (Exception e) {
             detalleArea.setText("Error mostrando datos de fase.");
         }
     }
 }
+
 

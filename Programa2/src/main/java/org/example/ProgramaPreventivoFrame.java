@@ -176,6 +176,21 @@ public class ProgramaPreventivoFrame extends JFrame {
                 sb.append("  Descripción: ").append(f.getDescripcion()).append("\n");
                 sb.append("  Intervalo días: ").append(f.getIntervaloDias()).append("\n");
                 sb.append("  Cantidad ciclos: ").append(f.getCantidadCiclos()).append("\n");
+
+                if (f.getTareas() != null && !f.getTareas().isEmpty()) {
+                    sb.append("  ▫ Tareas:\n");
+                    for (String t : f.getTareas()) {
+                        sb.append("     - ").append(t).append("\n");
+                    }
+                }
+
+                if (f.getRecursosNecesarios() != null && !f.getRecursosNecesarios().isEmpty()) {
+                    sb.append("  ▫ Recursos:\n");
+                    for (String r : f.getRecursosNecesarios()) {
+                        sb.append("     - ").append(r).append("\n");
+                    }
+                }
+
                 sb.append("-------------------------------------------------\n");
             }
 
@@ -287,15 +302,15 @@ public class ProgramaPreventivoFrame extends JFrame {
 
                 // crear fase
                 FasePreventiva fase = new FasePreventiva(
-                    numFase,
-                    txtDesc.getText(),
-                    dias,
-                    ciclos
+                        numFase,
+                        txtDesc.getText(),
+                        dias,
+                        ciclos
                 );
 
                 // enviar al controller
                 String r = sistema.getProgramaPreventivoController()
-                                    .agregarFaseAPrograma(idProg, fase);
+                        .agregarFaseAPrograma(idProg, fase);
 
                 JOptionPane.showMessageDialog(this, r);
 
@@ -311,145 +326,146 @@ public class ProgramaPreventivoFrame extends JFrame {
     }
 
     // ======================================================
-// PANEL EDITAR FASE PREVENTIVA
-// ======================================================
-private JPanel panelEditarFase() {
+    // PANEL EDITAR FASE PREVENTIVA
+    // ======================================================
+    private JPanel panelEditarFase() {
 
-    System.out.println(">>> [ProgramaPreventivoFrame] Inicializando panel Edición de Fase");
+        System.out.println(">>> [ProgramaPreventivoFrame] Inicializando panel Edición de Fase");
 
-    JPanel p = new JPanel(new BorderLayout());
+        JPanel p = new JPanel(new BorderLayout());
 
-    JPanel form = new JPanel(new GridLayout(9, 2, 5, 5));
+        JPanel form = new JPanel(new GridLayout(9, 2, 5, 5));
 
-    JTextField txtProgId = new JTextField();
-    JTextField txtNumFase = new JTextField();
-    JComboBox<FasePreventiva.Frecuencia> comboFrecuencia =
-            new JComboBox<>(FasePreventiva.Frecuencia.values());
+        JTextField txtProgId = new JTextField();
+        JTextField txtNumFase = new JTextField();
+        JComboBox<FasePreventiva.Frecuencia> comboFrecuencia =
+                new JComboBox<>(FasePreventiva.Frecuencia.values());
 
-    JTextField txtTiempoHoras = new JTextField();
-    JTextField txtObs = new JTextField();
+        JTextField txtTiempoHoras = new JTextField();
+        JTextField txtObs = new JTextField();
 
-    JTextField txtNuevaTarea = new JTextField();
-    JTextField txtNuevoRecurso = new JTextField();
+        JTextField txtNuevaTarea = new JTextField();
+        JTextField txtNuevoRecurso = new JTextField();
 
-    JButton btnAgregarTarea = new JButton("Agregar Tarea");
-    JButton btnAgregarRecurso = new JButton("Agregar Recurso");
-    JButton btnGuardarCambios = new JButton("Guardar cambios");
+        JButton btnAgregarTarea = new JButton("Agregar Tarea");
+        JButton btnAgregarRecurso = new JButton("Agregar Recurso");
+        JButton btnGuardarCambios = new JButton("Guardar cambios");
 
-    form.add(new JLabel("ID Programa:"));
-    form.add(txtProgId);
-    form.add(new JLabel("Número de fase:"));
-    form.add(txtNumFase);
-    form.add(new JLabel("Frecuencia:"));
-    form.add(comboFrecuencia);
-    form.add(new JLabel("Tiempo estimado (horas):"));
-    form.add(txtTiempoHoras);
-    form.add(new JLabel("Observaciones:"));
-    form.add(txtObs);
-    form.add(new JLabel("Nueva tarea:"));
-    form.add(txtNuevaTarea);
-    form.add(new JLabel("Nuevo recurso:"));
-    form.add(txtNuevoRecurso);
-    form.add(btnAgregarTarea);
-    form.add(btnAgregarRecurso);
-    form.add(new JLabel(""));
-    form.add(btnGuardarCambios);
+        form.add(new JLabel("ID Programa:"));
+        form.add(txtProgId);
+        form.add(new JLabel("Número de fase:"));
+        form.add(txtNumFase);
+        form.add(new JLabel("Frecuencia:"));
+        form.add(comboFrecuencia);
+        form.add(new JLabel("Tiempo estimado (horas):"));
+        form.add(txtTiempoHoras);
+        form.add(new JLabel("Observaciones:"));
+        form.add(txtObs);
+        form.add(new JLabel("Nueva tarea:"));
+        form.add(txtNuevaTarea);
+        form.add(new JLabel("Nuevo recurso:"));
+        form.add(txtNuevoRecurso);
+        form.add(btnAgregarTarea);
+        form.add(btnAgregarRecurso);
+        form.add(new JLabel(""));
+        form.add(btnGuardarCambios);
 
-    p.add(form, BorderLayout.NORTH);
+        p.add(form, BorderLayout.NORTH);
 
-    JTextArea salida = new JTextArea();
-    salida.setEditable(false);
-    p.add(new JScrollPane(salida), BorderLayout.CENTER);
+        JTextArea salida = new JTextArea();
+        salida.setEditable(false);
+        p.add(new JScrollPane(salida), BorderLayout.CENTER);
 
-    // ---------- BOTONES LÓGICA ----------
+        // ---------- BOTONES LÓGICA ----------
 
-    btnAgregarTarea.addActionListener(e -> {
-        try {
-            int pId = Integer.parseInt(txtProgId.getText());
-            int num = Integer.parseInt(txtNumFase.getText());
+        btnAgregarTarea.addActionListener(e -> {
+            try {
+                int pId = Integer.parseInt(txtProgId.getText());
+                int num = Integer.parseInt(txtNumFase.getText());
 
-            ProgramaPreventivo programa = sistema.getProgramaPreventivoController().buscarPrograma(pId);
+                ProgramaPreventivo programa = sistema.getProgramaPreventivoController().buscarPrograma(pId);
 
-            if (programa == null) {
-                JOptionPane.showMessageDialog(this, "Programa no encontrado.");
-                return;
+                if (programa == null) {
+                    JOptionPane.showMessageDialog(this, "Programa no encontrado.");
+                    return;
+                }
+
+                FasePreventiva fase = programa.obtenerFase(num);
+                if (fase == null) {
+                    JOptionPane.showMessageDialog(this, "Fase no encontrada.");
+                    return;
+                }
+
+                fase.agregarTarea(txtNuevaTarea.getText());
+                salida.append("➕ Tarea agregada a fase " + num + "\n");
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Datos inválidos.");
             }
+        });
 
-            FasePreventiva fase = programa.obtenerFase(num);
-            if (fase == null) {
-                JOptionPane.showMessageDialog(this, "Fase no encontrada.");
-                return;
+        btnAgregarRecurso.addActionListener(e -> {
+            try {
+                int pId = Integer.parseInt(txtProgId.getText());
+                int num = Integer.parseInt(txtNumFase.getText());
+
+                ProgramaPreventivo programa = sistema.getProgramaPreventivoController().buscarPrograma(pId);
+
+                if (programa == null) {
+                    JOptionPane.showMessageDialog(this, "Programa no encontrado.");
+                    return;
+                }
+
+                FasePreventiva fase = programa.obtenerFase(num);
+                if (fase == null) {
+                    JOptionPane.showMessageDialog(this, "Fase no encontrada.");
+                    return;
+                }
+
+                fase.agregarRecurso(txtNuevoRecurso.getText());
+                salida.append("🔧 Recurso agregado a fase " + num + "\n");
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Datos inválidos.");
             }
+        });
 
-            fase.agregarTarea(txtNuevaTarea.getText());
-            salida.append("➕ Tarea agregada a fase " + num + "\n");
+        btnGuardarCambios.addActionListener(e -> {
+            try {
+                int pId = Integer.parseInt(txtProgId.getText());
+                int num = Integer.parseInt(txtNumFase.getText());
 
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Datos inválidos.");
-        }
-    });
+                ProgramaPreventivo programa = sistema.getProgramaPreventivoController().buscarPrograma(pId);
 
-    btnAgregarRecurso.addActionListener(e -> {
-        try {
-            int pId = Integer.parseInt(txtProgId.getText());
-            int num = Integer.parseInt(txtNumFase.getText());
+                if (programa == null) {
+                    JOptionPane.showMessageDialog(this, "Programa no encontrado.");
+                    return;
+                }
 
-            ProgramaPreventivo programa = sistema.getProgramaPreventivoController().buscarPrograma(pId);
+                FasePreventiva fase = programa.obtenerFase(num);
+                if (fase == null) {
+                    JOptionPane.showMessageDialog(this, "Fase no encontrada.");
+                    return;
+                }
 
-            if (programa == null) {
-                JOptionPane.showMessageDialog(this, "Programa no encontrado.");
-                return;
+                // Aplicar cambios
+                fase.setFrecuencia((FasePreventiva.Frecuencia) comboFrecuencia.getSelectedItem());
+                fase.setTiempoEstimadoHoras(Double.parseDouble(txtTiempoHoras.getText()));
+                fase.setObservaciones(txtObs.getText());
+
+                salida.append("✔ Cambios guardados en fase " + num + "\n");
+
+                System.out.println(">>> [ProgramaPreventivoFrame] Fase " + num + " actualizada");
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Datos inválidos.");
             }
+        });
 
-            FasePreventiva fase = programa.obtenerFase(num);
-            if (fase == null) {
-                JOptionPane.showMessageDialog(this, "Fase no encontrada.");
-                return;
-            }
+        return p;
+    }
 
-            fase.agregarRecurso(txtNuevoRecurso.getText());
-            salida.append("🔧 Recurso agregado a fase " + num + "\n");
-
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Datos inválidos.");
-        }
-    });
-
-    btnGuardarCambios.addActionListener(e -> {
-        try {
-            int pId = Integer.parseInt(txtProgId.getText());
-            int num = Integer.parseInt(txtNumFase.getText());
-
-            ProgramaPreventivo programa = sistema.getProgramaPreventivoController().buscarPrograma(pId);
-
-            if (programa == null) {
-                JOptionPane.showMessageDialog(this, "Programa no encontrado.");
-                return;
-            }
-
-            FasePreventiva fase = programa.obtenerFase(num);
-            if (fase == null) {
-                JOptionPane.showMessageDialog(this, "Fase no encontrada.");
-                return;
-            }
-
-            // Aplicar cambios
-            fase.setFrecuencia((FasePreventiva.Frecuencia) comboFrecuencia.getSelectedItem());
-            fase.setTiempoEstimadoHoras(Double.parseDouble(txtTiempoHoras.getText()));
-            fase.setObservaciones(txtObs.getText());
-
-            salida.append("✔ Cambios guardados en fase " + num + "\n");
-
-            System.out.println(">>> [ProgramaPreventivoFrame] Fase " + num + " actualizada");
-
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Datos inválidos.");
-        }
-    });
-
-    return p;
 }
 
-}
 
 

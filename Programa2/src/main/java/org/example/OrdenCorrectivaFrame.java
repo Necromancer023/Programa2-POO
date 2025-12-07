@@ -29,6 +29,7 @@ public class OrdenCorrectivaFrame extends JFrame {
         tabs.add("Registrar Orden", panelRegistrar());
         tabs.add("Iniciar Atención", panelIniciar());
         tabs.add("Finalizar Orden", panelFinalizar());
+        tabs.add("Cancelar Orden", panelCancelar());
         tabs.add("Listado", panelLista());
 
         add(tabs, BorderLayout.CENTER);
@@ -264,10 +265,47 @@ public class OrdenCorrectivaFrame extends JFrame {
             salida.append(oc.toString() + "\n");
         }
     }
+
+    // ======================================================
+    // PANEL CANCELAR ORDEN CORRECTIVA
+    // ======================================================
+    private JPanel panelCancelar() {
+        JPanel p = new JPanel(new GridLayout(3, 2, 5, 5));
+
+        JTextField txtIdCancelar = new JTextField();
+
+        p.add(new JLabel("ID Orden a cancelar:"));
+        p.add(txtIdCancelar);
+
+        JButton btnCanc = new JButton("Cancelar Orden");
+        btnCanc.addActionListener(e -> {
+            try {
+                int id = Integer.parseInt(txtIdCancelar.getText());
+                String motivo = JOptionPane.showInputDialog("Ingrese motivo de cancelación:");
+
+                if (motivo == null || motivo.isBlank()) {
+                    JOptionPane.showMessageDialog(this, "Debe indicar un motivo.");
+                    return;
+                }
+
+                String r = sistema.getOrdenCorrectivaController()
+                        .marcarNoReparada(id, motivo);
+
+                JOptionPane.showMessageDialog(this, r);
+                cargarOrdenes();
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "ID inválido.");
+            }
+        });
+
+        p.add(new JLabel());
+        p.add(btnCanc);
+
+        return p;
+    }
+
 }
-
-
-
 
 
 
