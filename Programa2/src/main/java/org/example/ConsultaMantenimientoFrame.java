@@ -4,13 +4,28 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.tree.*;
 
+/**
+ * Ventana gráfica para la consulta integral de mantenimiento.
+ * Permite visualizar equipos, programas preventivos, fases
+ * y órdenes correctivas mediante un árbol jerárquico con
+ * un área de detalle contextual.
+ */
 public class ConsultaMantenimientoFrame extends JFrame {
 
+    /** Referencia al sistema central de mantenimiento para consultas. */
     private SistemaMantenimiento sistema;
 
+    /** Árbol que representa elementos estructurados: equipos, fases, correctivas. */
     private JTree arbol;
+
+    /** Área de texto utilizada para mostrar información detallada sobre el nodo seleccionado. */
     private JTextArea detalleArea;
 
+    /**
+     * Construye la ventana de consulta de mantenimiento e inicializa sus componentes.
+     * 
+     * @param sistema instancia principal del sistema de mantenimiento para extraer datos
+     */
     public ConsultaMantenimientoFrame(SistemaMantenimiento sistema) {
         this.sistema = sistema;
 
@@ -21,6 +36,7 @@ public class ConsultaMantenimientoFrame extends JFrame {
 
         System.out.println(">>> [ConsultaMantenimiento] Inicializando UI...");
 
+        // División de ventana en árbol y detalles
         JSplitPane split = new JSplitPane(
                 JSplitPane.HORIZONTAL_SPLIT,
                 construirPanelArbol(),
@@ -33,7 +49,11 @@ public class ConsultaMantenimientoFrame extends JFrame {
         actualizarArbol();
     }
 
-    // Panel del árbol
+    /**
+     * Construye el panel que contiene el árbol de navegación.
+     *
+     * @return panel configurado con árbol y botón de actualización
+     */
     private JPanel construirPanelArbol() {
         JPanel panel = new JPanel(new BorderLayout());
 
@@ -42,6 +62,7 @@ public class ConsultaMantenimientoFrame extends JFrame {
         arbol = new JTree(root);
         arbol.setRootVisible(true);
 
+        // Evento para mostrar detalles al seleccionar un nodo
         arbol.addTreeSelectionListener(e -> mostrarDetalleNodo());
 
         panel.add(new JScrollPane(arbol), BorderLayout.CENTER);
@@ -54,7 +75,11 @@ public class ConsultaMantenimientoFrame extends JFrame {
         return panel;
     }
 
-    // Panel derecho de detalles
+    /**
+     * Construye el panel que contiene el área de detalle informativo.
+     *
+     * @return panel con área de texto desplazable para información contextual
+     */
     private JPanel construirPanelDetalle() {
         JPanel panel = new JPanel(new BorderLayout());
 
@@ -66,7 +91,11 @@ public class ConsultaMantenimientoFrame extends JFrame {
         return panel;
     }
 
-    // Construcción del árbol
+    /**
+     * Reconstruye el árbol de navegación utilizando datos del sistema,
+     * agregando nodos de equipos, programas preventivos, fases
+     * y órdenes correctivas asociadas.
+     */
     private void actualizarArbol() {
         System.out.println(">>> [ConsultaMantenimiento] Cargando árbol...");
 
@@ -77,12 +106,14 @@ public class ConsultaMantenimientoFrame extends JFrame {
             DefaultMutableTreeNode nodoEquipo =
                     new DefaultMutableTreeNode("EQUIPO: " + eq.getId() + " - " + eq.getDescripcion());
 
+            // Componentes asociados
             for (Equipo comp : eq.getComponentes()) {
                 nodoEquipo.add(new DefaultMutableTreeNode(
                         "COMPONENTE: " + comp.getId() + " - " + comp.getDescripcion()
                 ));
             }
 
+            // Programa preventivo asociado (si existe)
             if (eq.getProgramaPreventivo() != null) {
 
                 ProgramaPreventivo prog = eq.getProgramaPreventivo();
@@ -100,6 +131,7 @@ public class ConsultaMantenimientoFrame extends JFrame {
                 nodoEquipo.add(nodoProg);
             }
 
+            // Sección de órdenes correctivas por equipo
             DefaultMutableTreeNode nodoCorrectivas = new DefaultMutableTreeNode("Correctivas");
 
             for (OrdenCorrectiva oc : sistema.getOrdenCorrectivaController().obtenerOrdenes()) {
@@ -117,7 +149,10 @@ public class ConsultaMantenimientoFrame extends JFrame {
         arbol.setModel(new DefaultTreeModel(root));
     }
 
-    // Mostrar información según el nodo seleccionado
+    /**
+     * Determina qué nodo fue seleccionado en el árbol y redirige
+     * la visualización de detalles según su categoría.
+     */
     private void mostrarDetalleNodo() {
         TreePath path = arbol.getSelectionPath();
         if (path == null) return;
@@ -138,7 +173,12 @@ public class ConsultaMantenimientoFrame extends JFrame {
         }
     }
 
-    // --- DETALLE EQUIPO ---
+    /**
+     * Muestra información detallada de un equipo seleccionado
+     * incluyendo programa preventivo y órdenes recientes.
+     *
+     * @param nodo cadena del nodo seleccionado con identificador de equipo
+     */
     private void mostrarDetalleEquipo(String nodo) {
         try {
             String idStr = nodo.split(":")[1].split("-")[0].trim();
@@ -156,21 +196,21 @@ public class ConsultaMantenimientoFrame extends JFrame {
 
                 if (eq.getProgramaPreventivo() != null) {
                     ProgramaPreventivo prog = eq.getProgramaPreventivo();
-                    detalleArea.append("\n✔ Programa Preventivo Asociado:\n");
+                    detalleArea.append("\nPrograma Preventivo Asociado:\n");
                     detalleArea.append("Nombre: " + prog.getNombrePrograma() + "\n");
                     detalleArea.append("Responsable: " + prog.getResponsable() + "\n");
                     detalleArea.append("Fases: " + prog.getFases().size() + "\n");
                 } else {
-                    detalleArea.append("\n⚠ Sin programa preventivo.\n");
+                    detalleArea.append("\nSin programa preventivo.\n");
                 }
 
-                detalleArea.append("\nÚltimas órdenes correctivas:\n");
+                detalleArea.append("\nUltimas ordenes correctivas:\n");
 
                 int count = 0;
                 for (OrdenCorrectiva oc : sistema.getOrdenCorrectivaController().obtenerOrdenes()) {
                     if (oc.getEquipoAsociado().getId() == id) {
                         if (count < 5) {
-                            detalleArea.append("• OC-" + oc.getIdOrdenCorrectiva()
+                            detalleArea.append("OC-" + oc.getIdOrdenCorrectiva()
                                     + " [" + oc.getEstado() + "]\n");
                             count++;
                         }
@@ -185,7 +225,11 @@ public class ConsultaMantenimientoFrame extends JFrame {
         }
     }
 
-    // --- DETALLE CORRECTIVA ---
+    /**
+     * Muestra información asociada a una orden correctiva seleccionada.
+     *
+     * @param nodo cadena con formato identificador de orden correctiva
+     */
     private void mostrarDetalleCorrectiva(String nodo) {
         try {
             String idStr = nodo.split("-")[1].split(" ")[0];
@@ -204,13 +248,19 @@ public class ConsultaMantenimientoFrame extends JFrame {
         }
     }
 
-    // --- DETALLE FASE CON TAREAS, RECURSOS Y MÉTRICAS ---
+    /**
+     * Muestra detalles completos de una fase programada,
+     * incluyendo descripción, parámetros operativos, tareas
+     * y recursos asignados.
+     *
+     * @param nodo texto del nodo seleccionado con número de fase
+     */
     private void mostrarDetalleFase(String nodo) {
         try {
             String numStr = nodo.split(" ")[1].replace(":", "");
             int num = Integer.parseInt(numStr);
 
-            detalleArea.setText("");  
+            detalleArea.setText("");
             detalleArea.append("FASE " + num + "\n");
             detalleArea.append("----------------------\n");
 
@@ -229,7 +279,6 @@ public class ConsultaMantenimientoFrame extends JFrame {
             }
 
             ProgramaPreventivo prog = eq.getProgramaPreventivo();
-
             FasePreventiva fase = prog.obtenerFase(num);
 
             if (fase == null) {
@@ -262,5 +311,6 @@ public class ConsultaMantenimientoFrame extends JFrame {
         }
     }
 }
+
 
 

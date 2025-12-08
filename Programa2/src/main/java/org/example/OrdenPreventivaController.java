@@ -3,15 +3,33 @@ package org.example;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * Controlador encargado de gestionar operaciones sobre órdenes preventivas.
+ *
+ * Actúa como intermediario entre la capa UI (frames) y la capa de servicio,
+ * validando datos de entrada y delegando acciones en {@link OrdenPreventivaService}.
+ */
 public class OrdenPreventivaController {
 
     private OrdenPreventivaService ordenService;
 
+    /**
+     * Inicializa el controlador instanciando el servicio.
+     */
     public OrdenPreventivaController() {
         this.ordenService = new OrdenPreventivaService();
     }
 
-    // Crear desde UI (llamado por frame)
+    /**
+     * Registra una nueva orden preventiva desde una interfaz de usuario.
+     *
+     * @param idOrden identificador único
+     * @param fecha fecha programada
+     * @param equipo equipo asociado
+     * @param fase fase preventiva asignada
+     * @param tecnico técnico responsable
+     * @return mensaje de resultado de operación
+     */
     public String crearOrdenPreventiva(int idOrden,
                                        LocalDate fecha,
                                        Equipo equipo,
@@ -29,7 +47,16 @@ public class OrdenPreventivaController {
                   : "No se pudo registrar (ID duplicado).";
     }
 
-    // Crear desde autogeneración
+    /**
+     * Registra una orden preventiva creada automáticamente desde programación interna.
+     *
+     * @param idOrden identificador único
+     * @param fecha fecha generada
+     * @param equipo equipo asociado
+     * @param fase fase preventiva correspondiente
+     * @param tecnico técnico asignado
+     * @return mensaje de resultado
+     */
     public String crearOrdenDesdeAutoGeneracion(int idOrden,
                                                 LocalDate fecha,
                                                 Equipo equipo,
@@ -42,7 +69,13 @@ public class OrdenPreventivaController {
                   : "La orden ya existe.";
     }
 
-    // Iniciar orden
+    /**
+     * Marca una orden como iniciada.
+     *
+     * @param idOrden identificador de la orden
+     * @param fecha fecha real de inicio
+     * @return mensaje de resultado
+     */
     public String iniciarOrden(int idOrden, LocalDate fecha) {
 
         boolean ok = ordenService.iniciarOrden(idOrden, fecha);
@@ -51,7 +84,16 @@ public class OrdenPreventivaController {
                   : "No se pudo iniciar la orden.";
     }
 
-    // Completar orden
+    /**
+     * Completa una orden preventiva registrado diagnóstico, tiempo y técnico.
+     *
+     * @param idOrden id de la orden
+     * @param fecha fecha de finalización
+     * @param tiempo horas reales trabajadas
+     * @param diagFinal diagnóstico final
+     * @param tecnico técnico ejecutante
+     * @return mensaje de resultado
+     */
     public String completarOrden(int idOrden,
                                  LocalDate fecha,
                                  double tiempo,
@@ -67,7 +109,13 @@ public class OrdenPreventivaController {
                   : "No se pudo completar (¿Estado incorrecto?).";
     }
 
-    // Cancelar orden
+    /**
+     * Cancela una orden preventiva registrando observación.
+     *
+     * @param idOrden identificador de la orden
+     * @param motivo texto de cancelación
+     * @return mensaje de resultado
+     */
     public String cancelarOrden(int idOrden, String motivo) {
 
         if (motivo == null || motivo.isBlank()) return "Debe ingresar motivo.";
@@ -78,7 +126,13 @@ public class OrdenPreventivaController {
                   : "No se pudo cancelar.";
     }
 
-    // Agregar material
+    /**
+     * Registra material consumido en la ejecución de una orden preventiva.
+     *
+     * @param idOrden id de la orden
+     * @param material material asociado
+     * @return mensaje de resultado
+     */
     public String agregarMaterial(int idOrden, String material) {
 
         if (material == null || material.isBlank()) return "Debe ingresar material.";
@@ -89,10 +143,16 @@ public class OrdenPreventivaController {
                   : "No se pudo registrar material.";
     }
 
+    /**
+     * Obtiene listado completo de órdenes preventivas registradas.
+     *
+     * @return lista de {@link OrdenPreventiva}
+     */
     public List<OrdenPreventiva> obtenerOrdenes() {
         return ordenService.obtenerOrdenes();
     }
 }
+
 
 
 

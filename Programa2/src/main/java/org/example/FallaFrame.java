@@ -4,13 +4,30 @@ import java.awt.*;
 import java.util.List;
 import javax.swing.*;
 
+/**
+ * Ventana gráfica para la gestión del catálogo de fallas dentro del sistema.
+ * Permite registrar nuevas fallas, eliminarlas y visualizar el listado existente.
+ * Además, registra movimientos en la auditoría del sistema cuando se realizan acciones.
+ */
 public class FallaFrame extends JFrame {
 
+    /** Referencia al sistema principal para acceso a controladores. */
     private SistemaMantenimiento sistema;
+
+    /** Campo de texto para capturar el ID de la falla. */
     private JTextField txtId;
+
+    /** Campo de texto para ingresar la descripción de la falla. */
     private JTextField txtDesc;
+
+    /** Área de texto utilizada para mostrar resultados del listado de fallas. */
     private JTextArea salida;
 
+    /**
+     * Construye la ventana con acceso a los servicios del sistema.
+     *
+     * @param sistema instancia central del sistema de mantenimiento
+     */
     public FallaFrame(SistemaMantenimiento sistema) {
         this.sistema = sistema;
 
@@ -30,7 +47,11 @@ public class FallaFrame extends JFrame {
         add(tabs, BorderLayout.CENTER);
     }
 
-    // Panel registrar
+    /**
+     * Construye el panel de registro de fallas.
+     *
+     * @return panel de captura para alta de fallas
+     */
     private JPanel panelRegistrar() {
         JPanel p = new JPanel(new GridLayout(3, 2, 5, 5));
 
@@ -52,6 +73,10 @@ public class FallaFrame extends JFrame {
         return p;
     }
 
+    /**
+     * Acción para registrar una nueva falla.
+     * Obtiene los datos ingresados, los valida, delega al controlador y registra auditoría.
+     */
     private void registrarFalla() {
         try {
             int id = Integer.parseInt(txtId.getText());
@@ -60,8 +85,8 @@ public class FallaFrame extends JFrame {
 
             String r = sistema.getFallaController().crearFalla(id, txtDesc.getText());
 
-            // === Registro Auditoría ===
-            sistema.getAuditoriaController().registrarEvento(
+            // Registro en auditoría del sistema
+            sistema.getAuditoriaController().registrarMovimiento(
                     sistema.getUsuarioActual().getNombreCompleto(),
                     "FALLA",
                     "ALTA",
@@ -75,7 +100,11 @@ public class FallaFrame extends JFrame {
         }
     }
 
-    // Panel eliminar
+    /**
+     * Construye el panel para eliminar fallas del sistema.
+     *
+     * @return panel con campo de ID y botón de eliminación
+     */
     private JPanel panelEliminar() {
         JPanel p = new JPanel(new GridLayout(2, 2, 5, 5));
 
@@ -93,8 +122,8 @@ public class FallaFrame extends JFrame {
 
                 String r = sistema.getFallaController().eliminarFalla(id);
 
-                // === Registro Auditoría ===
-                sistema.getAuditoriaController().registrarEvento(
+                // Registro en auditoría del sistema
+                sistema.getAuditoriaController().registrarMovimiento(
                         sistema.getUsuarioActual().getNombreCompleto(),
                         "FALLA",
                         "BAJA",
@@ -114,7 +143,11 @@ public class FallaFrame extends JFrame {
         return p;
     }
 
-    // Panel listado
+    /**
+     * Construye el panel que muestra el listado total de fallas.
+     *
+     * @return panel con botón para actualizar y área de salida
+     */
     private JPanel panelLista() {
         JPanel p = new JPanel(new BorderLayout());
 
@@ -130,6 +163,9 @@ public class FallaFrame extends JFrame {
         return p;
     }
 
+    /**
+     * Carga la lista completa de fallas registradas y la muestra en el área de salida.
+     */
     private void cargarFallas() {
         salida.setText("");
         System.out.println(">>> [FallaFrame] Listando fallas...");
@@ -146,6 +182,7 @@ public class FallaFrame extends JFrame {
         }
     }
 }
+
 
 
 

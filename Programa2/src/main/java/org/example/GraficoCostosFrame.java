@@ -4,11 +4,24 @@ import java.awt.*;
 import java.util.List;
 import javax.swing.*;
 
+/**
+ * Ventana encargada de mostrar un gráfico de barras con los costos
+ * de mantenimiento correctivo por cada equipo registrado en el sistema.
+ * Permite visualizar los gastos acumulados y actualizar la información.
+ */
 public class GraficoCostosFrame extends JFrame {
 
+    /** Referencia al sistema central para obtener datos de equipos y órdenes. */
     private SistemaMantenimiento sistema;
+
+    /** Panel que dibuja el gráfico de barras. */
     private GraficoPanel panelGrafico;
 
+    /**
+     * Construye una nueva ventana de gráficos basada en el sistema dado.
+     *
+     * @param sistema instancia principal del sistema desde la cual se obtienen los datos
+     */
     public GraficoCostosFrame(SistemaMantenimiento sistema) {
         this.sistema = sistema;
 
@@ -31,6 +44,10 @@ public class GraficoCostosFrame extends JFrame {
         actualizarGrafico();
     }
 
+    /**
+     * Obtiene costos de mantenimiento acumulados por equipo,
+     * construye el arreglo de datos y solicita repintado del gráfico.
+     */
     private void actualizarGrafico() {
         System.out.println(">>> [GraficoCostosFrame] generando datos para gráfico...");
 
@@ -61,17 +78,35 @@ public class GraficoCostosFrame extends JFrame {
         System.out.println(">>> [GraficoCostosFrame] gráfico actualizado");
     }
 
-    // Panel mejorado para renderizar barras
+    /**
+     * Panel interno encargado de renderizar visualmente un gráfico de barras
+     * a partir de los valores numéricos y etiquetas de equipos.
+     */
     private static class GraficoPanel extends JPanel {
 
+        /** Valores numéricos asociados al costo de cada equipo. */
         private double[] valores = new double[0];
+
+        /** Identificadores o etiquetas textuales para cada barra. */
         private String[] etiquetas = new String[0];
 
+        /**
+         * Establece los datos del gráfico a renderizar.
+         *
+         * @param valores arreglo de costos por equipo
+         * @param etiquetas arreglo de etiquetas para cada barra
+         */
         public void setDatos(double[] valores, String[] etiquetas) {
             this.valores = valores;
             this.etiquetas = etiquetas;
         }
 
+        /**
+         * Redibuja el contenido del panel representando barras verticales
+         * proporcionadas visualmente según el valor máximo registrado.
+         *
+         * @param g objeto gráfico proporcionado por Swing
+         */
         @Override
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
@@ -90,16 +125,16 @@ public class GraficoCostosFrame extends JFrame {
             int baseY = height - 80;
             int margenIzq = 60;
 
-            // Dibujar ejes
+            // Dibujar ejes del gráfico
             g2.setColor(Color.BLACK);
             g2.drawLine(margenIzq, baseY, width - 20, baseY);   // eje X
             g2.drawLine(margenIzq, baseY, margenIzq, 40);       // eje Y
 
-            // Obtener máximo
+            // Determinar el valor máximo para normalización del tamaño de barras
             double max = 1;
             for (double v : valores) if (v > max) max = v;
 
-            // Cálculo de barras
+            // Calcular dimensiones para distribución de barras
             int disponibles = width - margenIzq - 40;
             int anchoBarra = Math.max(40, disponibles / (valores.length * 2));
             int separacion = anchoBarra;
@@ -118,10 +153,10 @@ public class GraficoCostosFrame extends JFrame {
                 g2.setColor(Color.BLACK);
                 g2.drawRect(x, baseY - altura, anchoBarra, altura);
 
-                // Valor encima de la barra
+                // Mostrar valor sobre la barra
                 g2.drawString(String.format("%.1f", valor), x + 5, baseY - altura - 5);
 
-                // Etiqueta bajo la barra
+                // Etiqueta bajo cada barra
                 String etiqueta = etiquetas[i];
                 int txtWidth = g2.getFontMetrics().stringWidth(etiqueta);
                 g2.drawString(etiqueta, x + (anchoBarra - txtWidth) / 2, baseY + 15);
@@ -129,12 +164,13 @@ public class GraficoCostosFrame extends JFrame {
                 x += anchoBarra + separacion;
             }
 
-            // Título
+            // Dibujar título superior
             g2.setFont(new Font("Arial", Font.BOLD, 16));
             g2.drawString("Costo de Mantenimiento por Equipo", margenIzq, 30);
         }
     }
 }
+
 
 
 

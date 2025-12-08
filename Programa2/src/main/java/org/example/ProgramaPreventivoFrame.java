@@ -5,24 +5,42 @@ import java.time.LocalDate;
 import java.util.List;
 import javax.swing.*;
 
+/**
+ * Ventana Swing para gestionar Programas Preventivos.
+ *
+ * Permite:
+ * Registrar programas
+ * Registrar fases preventivas
+ * Editar fases de un programa
+ * Consultar detalles de un programa
+ * Listar todos los programas existentes
+ *
+ * Esta clase actúa como interfaz gráfica conectada al SistemaMantenimiento,
+ * delegando acciones a controladores según corresponda.
+ */
 public class ProgramaPreventivoFrame extends JFrame {
 
+    /** Instancia principal del sistema desde la cual se accede a los controladores */
     private final SistemaMantenimiento sistema;
 
-    // Campos para crear programa
+    // Campos gráficos para registrar un programa
     private JTextField txtId;
     private JTextField txtNombre;
     private JTextField txtResponsable;
     private JTextArea txtObjetivo;
 
-    // Campos para ver detalles / eliminar
+    // Campos para visualizar detalles y eliminar programas
     private JTextField txtIdDetalle;
     private JTextField txtIdEliminar;
     private JTextArea areaDetalle;
 
-    // Listado general
+    // Campo para mostrar el listado general de programas
     private JTextArea areaListado;
 
+    /**
+     * Constructor principal que construye la vista y configura pestañas.
+     * @param sistema referencia del sistema de mantenimiento
+     */
     public ProgramaPreventivoFrame(SistemaMantenimiento sistema) {
         this.sistema = sistema;
 
@@ -34,6 +52,7 @@ public class ProgramaPreventivoFrame extends JFrame {
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
 
+        // Pestañas de interacción
         JTabbedPane tabs = new JTabbedPane();
 
         tabs.add("Registrar programa", panelRegistrar());
@@ -48,6 +67,10 @@ public class ProgramaPreventivoFrame extends JFrame {
     // =========================================================
     // TAB 1: REGISTRAR PROGRAMA
     // =========================================================
+
+    /**
+     * Construye el panel para registrar un nuevo programa preventivo.
+     */
     private JPanel panelRegistrar() {
         JPanel p = new JPanel(new BorderLayout());
 
@@ -86,6 +109,9 @@ public class ProgramaPreventivoFrame extends JFrame {
         return p;
     }
 
+    /**
+     * Envía al sistema la solicitud para registrar un programa preventivo.
+     */
     private void registrarPrograma() {
         try {
             int id = Integer.parseInt(txtId.getText().trim());
@@ -99,22 +125,24 @@ public class ProgramaPreventivoFrame extends JFrame {
                     id,
                     nombre,
                     objetivo,
-                    LocalDate.now(),  // fechaCreacion = hoy
+                    LocalDate.now(),  // fechaCreación = hoy
                     responsable
             );
 
             JOptionPane.showMessageDialog(this, resultado);
-            System.out.println(">>> [ProgPrevFrame] Resultado crear: " + resultado);
 
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "ID inválido.");
-            System.out.println(">>> [ProgPrevFrame] Error al parsear ID: " + ex.getMessage());
         }
     }
 
     // =========================================================
     // TAB 2: DETALLE DE PROGRAMA
     // =========================================================
+
+    /**
+     * Construye panel para consultar detalles de programas y eliminarlos.
+     */
     private JPanel panelDetalle() {
         JPanel p = new JPanel(new BorderLayout());
 
@@ -145,6 +173,9 @@ public class ProgramaPreventivoFrame extends JFrame {
         return p;
     }
 
+    /**
+     * Busca y muestra en pantalla los detalles de un programa preventivo.
+     */
     private void cargarDetallePrograma() {
         areaDetalle.setText("");
 
@@ -156,7 +187,6 @@ public class ProgramaPreventivoFrame extends JFrame {
 
             if (prog == null) {
                 areaDetalle.setText("No se encontró el programa con ID " + id);
-                System.out.println(">>> [ProgPrevFrame] Programa no encontrado");
                 return;
             }
 
@@ -170,7 +200,6 @@ public class ProgramaPreventivoFrame extends JFrame {
             sb.append("Fases registradas: ").append(prog.getFases().size()).append("\n");
             sb.append("-------------------------------------------------\n");
 
-            // Mostramos fases si existen
             for (FasePreventiva f : prog.getFases()) {
                 sb.append("Fase #").append(f.getNumeroFase()).append("\n");
                 sb.append("  Descripción: ").append(f.getDescripcion()).append("\n");
@@ -195,14 +224,15 @@ public class ProgramaPreventivoFrame extends JFrame {
             }
 
             areaDetalle.setText(sb.toString());
-            System.out.println(">>> [ProgPrevFrame] Detalle cargado correctamente");
 
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "ID inválido.");
-            System.out.println(">>> [ProgPrevFrame] Error al parsear ID detalle: " + ex.getMessage());
         }
     }
 
+    /**
+     * Solicita al sistema la eliminación de un programa preventivo.
+     */
     private void eliminarPrograma() {
         try {
             int id = Integer.parseInt(txtIdEliminar.getText().trim());
@@ -211,17 +241,19 @@ public class ProgramaPreventivoFrame extends JFrame {
             String msg = sistema.getProgramaPreventivoController().eliminarPrograma(id);
 
             JOptionPane.showMessageDialog(this, msg);
-            System.out.println(">>> [ProgPrevFrame] Resultado eliminar: " + msg);
 
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "ID inválido para eliminar.");
-            System.out.println(">>> [ProgPrevFrame] Error al parsear ID eliminar: " + ex.getMessage());
         }
     }
 
     // =========================================================
     // TAB 3: LISTADO GENERAL
     // =========================================================
+
+    /**
+     * Crea panel que lista todos los programas preventivos registrados.
+     */
     private JPanel panelListado() {
         JPanel p = new JPanel(new BorderLayout());
 
@@ -237,28 +269,33 @@ public class ProgramaPreventivoFrame extends JFrame {
         return p;
     }
 
+    /**
+     * Obtiene los programas desde el controlador y los pinta en pantalla.
+     */
     private void cargarProgramas() {
         areaListado.setText("");
+
         System.out.println(">>> [ProgPrevFrame] Cargando listado de programas...");
 
         List<ProgramaPreventivo> lista = sistema.getProgramaPreventivoController().obtenerProgramas();
 
         if (lista == null || lista.isEmpty()) {
             areaListado.setText("No hay programas registrados.");
-            System.out.println(">>> [ProgPrevFrame] No hay programas en la lista");
             return;
         }
 
         for (ProgramaPreventivo p : lista) {
             areaListado.append(p.toString() + "\n");
         }
-
-        System.out.println(">>> [ProgPrevFrame] Listado cargado. Total programas: " + lista.size());
     }
 
     // ------------------------------------------------------------
-    // PANEL: REGISTRAR FASE PREVENTIVA
+    // TAB: REGISTRAR FASE PREVENTIVA
     // ------------------------------------------------------------
+
+    /**
+     * Panel que permite registrar una fase dentro de un programa preventivo.
+     */
     private JPanel panelRegistrarFase() {
         System.out.println(">>> [ProgramaFrame] Creando panel Registrar Fase");
 
@@ -298,9 +335,7 @@ public class ProgramaPreventivoFrame extends JFrame {
                     return;
                 }
 
-                System.out.println(">>> [ProgramaFrame] Registrando fase para programa " + idProg);
-
-                // crear fase
+                // Crear objeto fase
                 FasePreventiva fase = new FasePreventiva(
                         numFase,
                         txtDesc.getText(),
@@ -308,7 +343,7 @@ public class ProgramaPreventivoFrame extends JFrame {
                         ciclos
                 );
 
-                // enviar al controller
+                // Enviar al controlador del sistema
                 String r = sistema.getProgramaPreventivoController()
                         .agregarFaseAPrograma(idProg, fase);
 
@@ -328,6 +363,15 @@ public class ProgramaPreventivoFrame extends JFrame {
     // ======================================================
     // PANEL EDITAR FASE PREVENTIVA
     // ======================================================
+
+    /**
+     * Panel visual para modificar una fase preventiva:
+     * cambiar frecuencia
+     * registrar tareas
+     * registrar recursos
+     * actualizar observaciones
+     * tiempo estimado de ejecución
+     */
     private JPanel panelEditarFase() {
 
         System.out.println(">>> [ProgramaPreventivoFrame] Inicializando panel Edición de Fase");
@@ -376,7 +420,7 @@ public class ProgramaPreventivoFrame extends JFrame {
         salida.setEditable(false);
         p.add(new JScrollPane(salida), BorderLayout.CENTER);
 
-        // ---------- BOTONES LÓGICA ----------
+        // Lógica de botones
 
         btnAgregarTarea.addActionListener(e -> {
             try {
@@ -397,7 +441,7 @@ public class ProgramaPreventivoFrame extends JFrame {
                 }
 
                 fase.agregarTarea(txtNuevaTarea.getText());
-                salida.append("➕ Tarea agregada a fase " + num + "\n");
+                salida.append("Tarea agregada a fase " + num + "\n");
 
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, "Datos inválidos.");
@@ -423,7 +467,7 @@ public class ProgramaPreventivoFrame extends JFrame {
                 }
 
                 fase.agregarRecurso(txtNuevoRecurso.getText());
-                salida.append("🔧 Recurso agregado a fase " + num + "\n");
+                salida.append("Recurso agregado a fase " + num + "\n");
 
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, "Datos inválidos.");
@@ -448,14 +492,11 @@ public class ProgramaPreventivoFrame extends JFrame {
                     return;
                 }
 
-                // Aplicar cambios
                 fase.setFrecuencia((FasePreventiva.Frecuencia) comboFrecuencia.getSelectedItem());
                 fase.setTiempoEstimadoHoras(Double.parseDouble(txtTiempoHoras.getText()));
                 fase.setObservaciones(txtObs.getText());
 
-                salida.append("✔ Cambios guardados en fase " + num + "\n");
-
-                System.out.println(">>> [ProgramaPreventivoFrame] Fase " + num + " actualizada");
+                salida.append("Cambios guardados en fase " + num + "\n");
 
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, "Datos inválidos.");
@@ -466,6 +507,7 @@ public class ProgramaPreventivoFrame extends JFrame {
     }
 
 }
+
 
 
 

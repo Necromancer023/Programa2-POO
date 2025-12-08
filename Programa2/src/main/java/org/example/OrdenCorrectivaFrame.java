@@ -5,15 +5,28 @@ import java.time.LocalDate;
 import java.util.List;
 import javax.swing.*;
 
+/**
+ * Ventana Swing encargada de gestionar el ciclo completo de las
+ * órdenes correctivas: registro, inicio de atención, finalización,
+ * cancelación y consulta de registros.
+ *
+ * Interactúa con {@link SistemaMantenimiento} y los controladores:
+ * EquipoController y OrdenCorrectivaController.
+ */
 public class OrdenCorrectivaFrame extends JFrame {
 
     private SistemaMantenimiento sistema;
 
+    // Campos de entrada de datos para creación de orden
     private JTextField txtId, txtEquipoId, txtFalla, txtCausa, txtDiagnostico;
     private JComboBox<OrdenCorrectiva.Prioridad> comboPrioridad;
 
     private JTextArea salida;
 
+    /**
+     * Constructor principal que construye la interfaz
+     * y configura pestañas de operación.
+     */
     public OrdenCorrectivaFrame(SistemaMantenimiento sistema) {
         this.sistema = sistema;
 
@@ -36,8 +49,12 @@ public class OrdenCorrectivaFrame extends JFrame {
     }
 
     // ======================================================
-    // PANEL CREACIÓN DE ORDEN RESPETANDO CONTROLLER
+    // PANEL DE REGISTRO DE ORDENES
     // ======================================================
+
+    /**
+     * Construye panel para la creación inicial de orden correctiva.
+     */
     private JPanel panelRegistrar() {
         JPanel p = new JPanel(new GridLayout(7, 2, 5, 5));
 
@@ -63,6 +80,10 @@ public class OrdenCorrectivaFrame extends JFrame {
         return p;
     }
 
+    /**
+     * Ejecuta la creación de una orden correctiva
+     * validando existencia de equipo y datos numéricos.
+     */
     private void registrarOrden() {
         try {
             int id = Integer.parseInt(txtId.getText());
@@ -95,9 +116,13 @@ public class OrdenCorrectivaFrame extends JFrame {
         }
     }
 
-    // ------------------------------------------------------------
-    // PANEL: INICIAR ATENCIÓN
-    // ------------------------------------------------------------
+    // ======================================================
+    // PANEL INICIAR ATENCION
+    // ======================================================
+
+    /**
+     * Construye panel que permite cambiar estado de la orden a "EN_PROCESO".
+     */
     private JPanel panelIniciar() {
         JPanel p = new JPanel(new GridLayout(3, 2, 5, 5));
 
@@ -129,12 +154,15 @@ public class OrdenCorrectivaFrame extends JFrame {
         return p;
     }
 
-
     // ======================================================
     // PANEL FINALIZAR ORDEN
     // ======================================================
+
     private JTextField txtFinId, txtAcciones, txtObs, txtCosto, txtHoras;
 
+    /**
+     * Panel para finalizar las órdenes ingresando diagnósticos y costos.
+     */
     private JPanel panelFinalizar() {
         JPanel p = new JPanel(new GridLayout(6, 2, 5, 5));
 
@@ -159,6 +187,10 @@ public class OrdenCorrectivaFrame extends JFrame {
         return p;
     }
 
+    /**
+     * Aplica la finalización real de la orden con validaciones
+     * preventivas antes de delegar al controlador.
+     */
     private void finalizarOrden() {
         try {
             int id = Integer.parseInt(txtFinId.getText());
@@ -170,47 +202,40 @@ public class OrdenCorrectivaFrame extends JFrame {
 
             System.out.println(">>> [CorrectivaFrame] Intentando finalizar orden " + id);
 
-            // ================= VALIDACIONES PREVIAS =================
-
-            // 1) Validar orden existente
+            // Validaciones internas previas
             OrdenCorrectiva orden = sistema.getOrdenCorrectivaController().buscarOrdenPorId(id);
             if (orden == null) {
                 JOptionPane.showMessageDialog(this, "La orden no existe.");
                 return;
             }
 
-            // 2) Validar que ya haya sido iniciada
             if (orden.getFechaAtencion() == null) {
                 JOptionPane.showMessageDialog(this, "Debe iniciar atención antes de finalizar la orden.");
                 return;
             }
 
-            // 3) Validar horas
             if (horas < 0) {
                 JOptionPane.showMessageDialog(this, "Las horas trabajadas no pueden ser negativas.");
                 return;
             }
 
-            // 4) Validar costo
             if (costo < 0) {
                 JOptionPane.showMessageDialog(this, "El costo no puede ser negativo.");
                 return;
             }
 
-            // 5) Validar acciones obligatorias
             if (acciones == null || acciones.isBlank()) {
                 JOptionPane.showMessageDialog(this, "Debe ingresar el diagnóstico / acciones realizadas.");
                 return;
             }
 
-            // 6) Validar coherencia temporal
             LocalDate hoy = LocalDate.now();
             if (hoy.isBefore(orden.getFechaAtencion())) {
                 JOptionPane.showMessageDialog(this, "La fecha de finalización no puede ser menor que la fecha de inicio.");
                 return;
             }
 
-            // ================= EJECUCIÓN REAL =================
+            // Delegación al controlador
             String r = sistema.getOrdenCorrectivaController().finalizarOrden(
                     id,
                     hoy,
@@ -230,10 +255,13 @@ public class OrdenCorrectivaFrame extends JFrame {
         }
     }
 
+    // ======================================================
+    // PANEL LISTADO
+    // ======================================================
 
-    // ======================================================
-    // PANEL LISTAR ÓRDENES
-    // ======================================================
+    /**
+     * Construye panel que muestra todas las órdenes registradas.
+     */
     private JPanel panelLista() {
         JPanel p = new JPanel(new BorderLayout());
 
@@ -249,6 +277,9 @@ public class OrdenCorrectivaFrame extends JFrame {
         return p;
     }
 
+    /**
+     * Carga órdenes existentes y las muestra en consola y panel.
+     */
     private void cargarOrdenes() {
         salida.setText("");
 
@@ -269,6 +300,10 @@ public class OrdenCorrectivaFrame extends JFrame {
     // ======================================================
     // PANEL CANCELAR ORDEN CORRECTIVA
     // ======================================================
+
+    /**
+     * Panel que permite marcar una orden como no reparada.
+     */
     private JPanel panelCancelar() {
         JPanel p = new JPanel(new GridLayout(3, 2, 5, 5));
 
@@ -306,6 +341,7 @@ public class OrdenCorrectivaFrame extends JFrame {
     }
 
 }
+
 
 
 

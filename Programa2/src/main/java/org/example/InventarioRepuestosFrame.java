@@ -4,9 +4,18 @@ import java.awt.*;
 import java.util.List;
 import javax.swing.*;
 
+/**
+ * Ventana Swing encargada de gestionar el módulo de
+ * inventario de repuestos. Permite registrar repuestos,
+ * registrar movimientos de inventario (entradas, salidas,
+ * ajustes) y visualizar el stock de manera actualizada.
+ */
 public class InventarioRepuestosFrame extends JFrame {
 
+    /** Referencia al sistema para acceder a controladores y datos. */
     private SistemaMantenimiento sistema;
+
+    /** Área de texto utilizada para mostrar el inventario disponible. */
     private JTextArea salida;
 
     // Campos para agregar repuesto
@@ -15,6 +24,12 @@ public class InventarioRepuestosFrame extends JFrame {
     // Campos para movimientos
     private JTextField txtMovId, txtCantidad, txtMotivo, txtReferencia, txtNuevoStock;
 
+    /**
+     * Constructor principal: configura ventana, pestañas y componentes
+     * de interacción.
+     *
+     * @param sistema instancia del sistema de mantenimiento
+     */
     public InventarioRepuestosFrame(SistemaMantenimiento sistema) {
         this.sistema = sistema;
 
@@ -37,6 +52,10 @@ public class InventarioRepuestosFrame extends JFrame {
     // ------------------------------------------------------------
     // PANEL: AGREGAR REPUESTO
     // ------------------------------------------------------------
+
+    /**
+     * Construye el panel para registrar nuevos repuestos en inventario.
+     */
     private JPanel panelAgregar() {
         JPanel p = new JPanel(new GridLayout(8, 2, 5, 5));
 
@@ -64,6 +83,10 @@ public class InventarioRepuestosFrame extends JFrame {
         return p;
     }
 
+    /**
+     * Obtiene datos del formulario y envía la solicitud al controlador
+     * para crear un nuevo repuesto. Muestra resultados al usuario.
+     */
     private void agregarRepuesto() {
         try {
             int id = Integer.parseInt(txtId.getText());
@@ -94,6 +117,11 @@ public class InventarioRepuestosFrame extends JFrame {
     // ------------------------------------------------------------
     // PANEL: MOVIMIENTOS
     // ------------------------------------------------------------
+
+    /**
+     * Construye el panel donde el usuario puede registrar entradas,
+     * salidas y ajustes de inventario.
+     */
     private JPanel panelMovimientos() {
         JPanel p = new JPanel(new GridLayout(7, 2, 5, 5));
 
@@ -128,6 +156,10 @@ public class InventarioRepuestosFrame extends JFrame {
         return p;
     }
 
+    /**
+     * Registra una entrada de stock utilizando el controlador
+     * y actualiza la lista visible.
+     */
     private void registrarEntrada() {
         try {
             int id = Integer.parseInt(txtMovId.getText());
@@ -147,6 +179,10 @@ public class InventarioRepuestosFrame extends JFrame {
         }
     }
 
+    /**
+     * Registra una salida de stock (consumo de repuestos)
+     * y muestra el resultado al usuario.
+     */
     private void registrarSalida() {
         try {
             int id = Integer.parseInt(txtMovId.getText());
@@ -166,6 +202,10 @@ public class InventarioRepuestosFrame extends JFrame {
         }
     }
 
+    /**
+     * Permite ingresar ajustes de inventario físico y refleja
+     * cambios en pantalla.
+     */
     private void registrarAjuste() {
         try {
             int id = Integer.parseInt(txtMovId.getText());
@@ -188,6 +228,10 @@ public class InventarioRepuestosFrame extends JFrame {
     // ------------------------------------------------------------
     // PANEL: LISTA INVENTARIO
     // ------------------------------------------------------------
+
+    /**
+     * Panel encargado de mostrar el stock actual registrado.
+     */
     private JPanel panelLista() {
         JPanel p = new JPanel(new BorderLayout());
 
@@ -203,6 +247,10 @@ public class InventarioRepuestosFrame extends JFrame {
         return p;
     }
 
+    /**
+     * Consulta el inventario por medio del controlador y
+     * lo muestra en el área de texto.
+     */
     private void cargarInventario() {
         salida.setText("");
 
@@ -220,5 +268,6 @@ public class InventarioRepuestosFrame extends JFrame {
         }
     }
 }
+
 
 

@@ -5,6 +5,10 @@ import java.util.List;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
+/**
+ * Ventana Swing que permite gestionar usuarios del sistema.
+ * Permite registrar, listar y eliminar usuarios mediante interacción gráfica.
+ */
 public class UsuarioFrame extends JFrame {
 
     private UsuarioController usuarioController;
@@ -16,10 +20,20 @@ public class UsuarioFrame extends JFrame {
     private JTable tabla;
     private DefaultTableModel modeloTabla;
 
+    /**
+     * Constructor por defecto. Obtiene la instancia del sistema
+     * y delega la creación de la interfaz gráfica.
+     */
     public UsuarioFrame() {
         this(SistemaMantenimiento.getInstance());
     }
 
+    /**
+     * Constructor principal que recibe el sistema para acceder
+     * al controlador de usuarios.
+     *
+     * @param sistema instancia central del sistema
+     */
     public UsuarioFrame(SistemaMantenimiento sistema) {
 
         usuarioController = sistema.getUsuarioController();
@@ -102,6 +116,11 @@ public class UsuarioFrame extends JFrame {
         cargarTabla();
     }
 
+    /**
+     * Evento asociado al botón registrar.
+     * Obtiene los valores del formulario, valida la entrada
+     * y delega la creación de usuario al controlador.
+     */
     private void registrarUsuario() {
         try {
             int id = Integer.parseInt(txtId.getText());
@@ -124,6 +143,10 @@ public class UsuarioFrame extends JFrame {
         }
     }
 
+    /**
+     * Carga los usuarios registrados en la tabla visual.
+     * Limpia el contenido anterior y repuebla filas con datos actuales.
+     */
     private void cargarTabla() {
         modeloTabla.setRowCount(0);
         List<Usuario> lista = usuarioController.listarUsuarios();
@@ -141,6 +164,10 @@ public class UsuarioFrame extends JFrame {
         }
     }
 
+    /**
+     * Elimina el usuario seleccionado en la tabla.
+     * Muestra mensajes de error si no hay selección válida.
+     */
     private void eliminarUsuario() {
         int fila = tabla.getSelectedRow();
         if (fila == -1) {
@@ -156,6 +183,7 @@ public class UsuarioFrame extends JFrame {
         cargarTabla();
     }
 }
+
 
 
 

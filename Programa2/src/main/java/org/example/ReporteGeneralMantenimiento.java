@@ -2,6 +2,13 @@ package org.example;
 
 import java.util.List;
 
+/**
+ * Clase encargada de generar reportes relacionados con equipos,
+ * órdenes preventivas, órdenes correctivas y programas preventivos.
+ *
+ * Su propósito es centralizar consultas de información para generar
+ * reportes estructurados en texto.
+ */
 public class ReporteGeneralMantenimiento {
 
     private EquipoService equipoService;
@@ -9,7 +16,9 @@ public class ReporteGeneralMantenimiento {
     private OrdenCorrectivaService ordenCorrectivaService;
     private ProgramaPreventivoService programaPreventivoService;
 
-    // Constructor
+    /**
+     * Constructor que recibe las dependencias necesarias para generar reportes.
+     */
     public ReporteGeneralMantenimiento(EquipoService equipoService,
                                        OrdenPreventivaService ordenPreventivaService,
                                        OrdenCorrectivaService ordenCorrectivaService,
@@ -21,9 +30,11 @@ public class ReporteGeneralMantenimiento {
         this.programaPreventivoService = programaPreventivoService;
     }
 
-    // ---------------------------------------------------------
-    // REPORTE DE EQUIPOS
-    // ---------------------------------------------------------
+    /**
+     * Genera un reporte con la información básica de los equipos registrados.
+     *
+     * @return reporte textual con datos de equipos.
+     */
     public String generarReporteEquipos() {
 
         StringBuilder sb = new StringBuilder();
@@ -48,9 +59,11 @@ public class ReporteGeneralMantenimiento {
         return sb.toString();
     }
 
-    // ---------------------------------------------------------
-    // REPORTE DE ÓRDENES PREVENTIVAS
-    // ---------------------------------------------------------
+    /**
+     * Genera un reporte con el listado de órdenes preventivas registradas.
+     *
+     * @return texto resumen de órdenes preventivas.
+     */
     public String generarReporteOrdenesPreventivas() {
 
         StringBuilder sb = new StringBuilder();
@@ -82,9 +95,11 @@ public class ReporteGeneralMantenimiento {
         return sb.toString();
     }
 
-    // ---------------------------------------------------------
-    // REPORTE DE ÓRDENES CORRECTIVAS
-    // ---------------------------------------------------------
+    /**
+     * Genera un reporte con la información sobre órdenes correctivas registradas.
+     *
+     * @return texto resumen de órdenes correctivas.
+     */
     public String generarReporteOrdenesCorrectivas() {
 
         StringBuilder sb = new StringBuilder();
@@ -117,9 +132,11 @@ public class ReporteGeneralMantenimiento {
         return sb.toString();
     }
 
-    // ---------------------------------------------------------
-    // REPORTE DE PROGRAMAS PREVENTIVOS
-    // ---------------------------------------------------------
+    /**
+     * Genera un reporte con la información básica de los programas preventivos.
+     *
+     * @return texto resumen de programas preventivos.
+     */
     public String generarReporteProgramasPreventivos() {
 
         StringBuilder sb = new StringBuilder();
@@ -143,9 +160,12 @@ public class ReporteGeneralMantenimiento {
         return sb.toString();
     }
 
-    // ---------------------------------------------------------
-    // REPORTE GENERAL (Todos los reportes juntos)
-    // ---------------------------------------------------------
+    /**
+     * Genera un reporte consolidado que integra los reportes
+     * de equipos, órdenes preventivas, correctivas y programas preventivos.
+     *
+     * @return texto completo del reporte general.
+     */
     public String generarReporteGeneral() {
 
         StringBuilder sb = new StringBuilder();
@@ -162,3 +182,4 @@ public class ReporteGeneralMantenimiento {
         return sb.toString();
     }
 }
+

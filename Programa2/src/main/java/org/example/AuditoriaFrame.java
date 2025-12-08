@@ -5,13 +5,33 @@ import java.io.FileOutputStream;
 import java.util.List;
 import javax.swing.*;
 
+/**
+ * Ventana que permite consultar, filtrar y exportar registros
+ * de auditoría del sistema.
+ *
+ * Permite visualizar eventos auditados, filtrarlos por usuario
+ * o entidad, así como exportarlos a un documento PDF creado
+ * manualmente sin uso de bibliotecas externas.
+ */
 public class AuditoriaFrame extends JFrame {
 
+    /** Referencia al sistema de mantenimiento para acceder al controlador de auditoría. */
     private SistemaMantenimiento sistema;
+
+    /** Área de texto donde se muestran los resultados de auditoría y filtros. */
     private JTextArea salida;
+
+    /** Campo de entrada para filtrar registros por usuario. */
     private JTextField txtFiltroUsuario;
+
+    /** Campo de entrada para filtrar registros por entidad del sistema. */
     private JTextField txtFiltroEntidad;
 
+    /**
+     * Construye la ventana de auditoría recibiendo el sistema principal.
+     *
+     * @param sistema referencia global al sistema
+     */
     public AuditoriaFrame(SistemaMantenimiento sistema) {
         this.sistema = sistema;
 
@@ -20,7 +40,6 @@ public class AuditoriaFrame extends JFrame {
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
-        // Panel superior de filtros
         JPanel filtros = new JPanel(new GridLayout(2, 3, 5, 5));
 
         txtFiltroUsuario = new JTextField();
@@ -42,28 +61,25 @@ public class AuditoriaFrame extends JFrame {
 
         add(filtros, BorderLayout.NORTH);
 
-        // ✔︎ BOTONES INFERIORES (Ver todo + Exportar)
+        // Botones inferiores
         JButton btnVerTodo = new JButton("Ver Auditoría Completa");
         btnVerTodo.addActionListener(e -> mostrarTodo());
 
         JButton btnExportar = new JButton("Exportar Auditoría");
         btnExportar.addActionListener(e -> exportarAuditoria());
 
-        JPanel bottom = new JPanel(new GridLayout(1,2));
+        JPanel bottom = new JPanel(new GridLayout(1, 2));
         bottom.add(btnVerTodo);
         bottom.add(btnExportar);
 
         add(bottom, BorderLayout.SOUTH);
 
-        // Área de salida
         salida = new JTextArea();
         salida.setEditable(false);
         add(new JScrollPane(salida), BorderLayout.CENTER);
     }
 
-    // ----------------------------------------------
-    // Mostrar auditoría completa
-    // ----------------------------------------------
+    /** Muestra todos los registros auditados ya almacenados. */
     private void mostrarTodo() {
         salida.setText("");
 
@@ -78,9 +94,7 @@ public class AuditoriaFrame extends JFrame {
         lista.forEach(a -> salida.append(a.toString() + "\n"));
     }
 
-    // ----------------------------------------------
-    // Filtrar auditoría por usuario
-    // ----------------------------------------------
+    /** Filtra la auditoría buscando entradas asociadas a un usuario específico. */
     private void mostrarPorUsuario() {
         salida.setText("");
 
@@ -102,9 +116,7 @@ public class AuditoriaFrame extends JFrame {
         lista.forEach(a -> salida.append(a.toString() + "\n"));
     }
 
-    // ----------------------------------------------
-    // Filtrar auditoría por entidad (EQUIPO, USUARIO, ORDEN, etc.)
-    // ----------------------------------------------
+    /** Filtra registros auditando una entidad del sistema (EQUIPO, ORDEN, USUARIO, etc.). */
     private void mostrarPorEntidad() {
         salida.setText("");
 
@@ -126,10 +138,10 @@ public class AuditoriaFrame extends JFrame {
         lista.forEach(a -> salida.append(a.toString() + "\n"));
     }
 
-
-    // ============================================================
-    // EXPORTAR AUDITORÍA A PDF — SIN LIBRERÍAS EXTERNAS
-    // ============================================================
+    /**
+     * Exporta el contenido visible a un archivo PDF generado manualmente.
+     * No requiere librerías externas.
+     */
     private void exportarAuditoria() {
         try {
             if (salida.getText().isBlank()) {
@@ -150,13 +162,12 @@ public class AuditoriaFrame extends JFrame {
 
             long pos3 = fos.getChannel().position();
             fos.write(
-                ("3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] " +
-                "/Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >> endobj\n").getBytes()
+                    ("3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] " +
+                            "/Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >> endobj\n").getBytes()
             );
 
             StringBuilder contenido = new StringBuilder();
-            contenido.append("BT\n");
-            contenido.append("/F1 10 Tf\n");
+            contenido.append("BT\n/F1 10 Tf\n");
 
             int y = 800;
 
@@ -208,5 +219,6 @@ public class AuditoriaFrame extends JFrame {
         }
     }
 }
+
 
 

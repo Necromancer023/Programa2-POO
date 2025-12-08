@@ -1,5 +1,9 @@
 package org.example;
 
+/**
+ * Representa un repuesto o consumible del inventario de mantenimiento.
+ * Lleva control de stock, ubicación en almacén y costo unitario.
+ */
 public class Repuesto {
 
     private int id;
@@ -10,22 +14,29 @@ public class Repuesto {
     private String ubicacionAlmacen; // Estantería, pasillo, etc.
     private double costoUnitario;
 
-    // --- Constructor ---
+    // ---------------- CONSTRUCTOR ----------------
 
-    public Repuesto(int id, String nombre, String descripcion,
-                    int stockActual, int stockMinimo,
-                    String ubicacionAlmacen, double costoUnitario) {
+    /**
+     * Crea un repuesto con sus datos principales.
+     */
+    public Repuesto(int id,
+                    String nombre,
+                    String descripcion,
+                    int stockActual,
+                    int stockMinimo,
+                    String ubicacionAlmacen,
+                    double costoUnitario) {
 
         this.id = id;
         this.nombre = nombre;
         this.descripcion = descripcion;
-        this.stockActual = stockActual;
+        this.stockActual = Math.max(stockActual, 0);
         this.stockMinimo = stockMinimo;
         this.ubicacionAlmacen = ubicacionAlmacen;
         this.costoUnitario = costoUnitario;
     }
 
-    // --- Getters y Setters ---
+    // ---------------- GETTERS / SETTERS ----------------
 
     public int getId() {
         return id;
@@ -70,22 +81,31 @@ public class Repuesto {
         this.costoUnitario = costoUnitario;
     }
 
-    // --- Métodos auxiliares ---
+    // ---------------- MÉTODOS DE INVENTARIO ----------------
 
-    /** Ajusta el stock sumando la cantidad (puede ser negativa). */
+    /**
+     * Ajusta el stock sumando la cantidad indicada.
+     * Puede ser positiva (entrada) o negativa (consumo).
+     * Si el resultado es menor a cero, el stock se corrige a cero.
+     */
     public void ajustarStock(int delta) {
         this.stockActual += delta;
         if (this.stockActual < 0) {
-            this.stockActual = 0; // por seguridad
+            this.stockActual = 0;
         }
     }
 
-    /** Asigna el stock a un valor exacto (para ajustes físicos). */
+    /**
+     * Ajusta el stock con una asignación directa.
+     * Se asegura que nunca quede negativo.
+     */
     public void setStockActual(int stockActual) {
         this.stockActual = Math.max(stockActual, 0);
     }
 
-    /** ¿Está por debajo del mínimo recomendado? */
+    /**
+     * Indica si el stock está por debajo del mínimo definido.
+     */
     public boolean estaBajoMinimo() {
         return stockActual <= stockMinimo;
     }
@@ -102,4 +122,5 @@ public class Repuesto {
                 '}';
     }
 }
+
 

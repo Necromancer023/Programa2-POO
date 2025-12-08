@@ -5,21 +5,43 @@ import java.time.LocalDate;
 import java.util.List;
 import javax.swing.*;
 
+/**
+ * Interfaz Swing para gestionar órdenes preventivas:
+ * - Creación
+ * - Inicio de ejecución
+ * - Finalización
+ * - Cancelación
+ * - Registro de materiales
+ * - Listado de órdenes registradas
+ *
+ * Se comunica con los controladores del sistema usando
+ * validaciones mínimas antes de delegar acciones.
+ */
 public class OrdenPreventivaFrame extends JFrame {
 
+    // ---- Componentes de entrada de datos ----
     private JTextField txtIdOrden, txtFechaProgramada, txtTiempoReal, txtDiagnosticoFinal;
     private JComboBox<Equipo> cmbEquipo;
-    private JComboBox<FasePreventiva> cmbFase;
+       private JComboBox<FasePreventiva> cmbFase;
     private JComboBox<Tecnico> cmbTecnico;
     private JTextArea txtLista;
 
+    // ---- Controladores utilizados ----
     private OrdenPreventivaController ordenController;
     private EquipoController equipoController;
     private TecnicoController tecnicoController;
     private ProgramaPreventivoController programaController;
 
+    /**
+     * Constructor que obtiene la instancia singleton del sistema.
+     */
     public OrdenPreventivaFrame() { this(SistemaMantenimiento.getInstance()); }
 
+    /**
+     * Constructor principal: inicializa controladores y crea la interfaz.
+     *
+     * @param sistema instancia central del sistema de mantenimiento
+     */
     public OrdenPreventivaFrame(SistemaMantenimiento sistema) {
 
         ordenController = sistema.getOrdenPreventivaController();
@@ -33,7 +55,9 @@ public class OrdenPreventivaFrame extends JFrame {
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
-        // ======== FORMULARIO SUPERIOR ========
+        // ============================
+        // PANEL SUPERIOR - FORMULARIO
+        // ============================
         JPanel form = new JPanel(new GridLayout(4, 4, 5, 5));
 
         form.add(new JLabel("ID Orden:"));
@@ -76,7 +100,9 @@ public class OrdenPreventivaFrame extends JFrame {
 
         add(panelSuperior, BorderLayout.PAGE_START);
 
-        // ======== PANEL DE ACCIONES ========
+        // ============================
+        // PANEL DE ACCIONES
+        // ============================
         JPanel acciones = new JPanel(new GridLayout(1, 5, 5, 5));
 
         JButton btnCrear = new JButton("Crear Orden");
@@ -101,7 +127,9 @@ public class OrdenPreventivaFrame extends JFrame {
 
         add(acciones, BorderLayout.CENTER);
 
-        // ======== LISTADO DE ÓRDENES DEBAJO ========
+        // ============================
+        // LISTADO INFERIOR
+        // ============================
         txtLista = new JTextArea();
         txtLista.setEditable(false);
         txtLista.setFont(new Font("monospaced", Font.PLAIN, 12));
@@ -114,6 +142,9 @@ public class OrdenPreventivaFrame extends JFrame {
         listar();
     }
 
+    /**
+     * Recarga combos de equipos, técnicos y fases desde los controladores.
+     */
     private void cargarDatos() {
         cmbEquipo.removeAllItems();
         for (Equipo e : equipoController.obtenerEquipos()) cmbEquipo.addItem(e);
@@ -127,6 +158,9 @@ public class OrdenPreventivaFrame extends JFrame {
             for (FasePreventiva f : p.getFases()) cmbFase.addItem(f);
     }
 
+    /**
+     * Acción de UI para creación de orden preventiva.
+     */
     private void crearOrden() {
         try {
 
@@ -152,6 +186,7 @@ public class OrdenPreventivaFrame extends JFrame {
         }
     }
 
+    /** Inicia atención de la orden seleccionada. */
     private void iniciarOrden() {
         try {
             int id = Integer.parseInt(txtIdOrden.getText());
@@ -162,6 +197,7 @@ public class OrdenPreventivaFrame extends JFrame {
         }
     }
 
+    /** Completa una orden preventiva con diagnóstico y tiempo real. */
     private void completarOrden() {
         try {
             int id = Integer.parseInt(txtIdOrden.getText());
@@ -180,6 +216,7 @@ public class OrdenPreventivaFrame extends JFrame {
         }
     }
 
+    /** Cancela una orden registrando motivo. */
     private void cancelarOrden() {
         try {
             int id = Integer.parseInt(txtIdOrden.getText());
@@ -195,6 +232,7 @@ public class OrdenPreventivaFrame extends JFrame {
         }
     }
 
+    /** Registra material consumido asociado a una orden preventiva. */
     private void agregarMaterial() {
         try {
             int id = Integer.parseInt(txtIdOrden.getText());
@@ -207,12 +245,14 @@ public class OrdenPreventivaFrame extends JFrame {
         }
     }
 
+    /** Lista todas las órdenes en la UI. */
     private void listar() {
         txtLista.setText("");
         for (OrdenPreventiva o : ordenController.obtenerOrdenes())
             txtLista.append(o.toString() + "\n");
     }
 
+    /** Limpia campos del formulario superior. */
     private void limpiarFormulario() {
         txtIdOrden.setText("");
         txtFechaProgramada.setText("");
@@ -220,6 +260,7 @@ public class OrdenPreventivaFrame extends JFrame {
         txtTiempoReal.setText("");
     }
 }
+
 
 
 

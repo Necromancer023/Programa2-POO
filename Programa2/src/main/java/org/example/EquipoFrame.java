@@ -6,23 +6,42 @@ import java.util.List;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
+/**
+ * Ventana gráfica para la gestión de equipos.
+ * Permite registrar nuevos equipos, visualizar los existentes
+ * y eliminar registros seleccionados desde una tabla.
+ */
 public class EquipoFrame extends JFrame {
 
+    /** Controlador encargado de la lógica de negocio para la gestión de equipos. */
     private EquipoController equipoController;
 
+    /** Campos de entrada para capturar atributos del equipo. */
     private JTextField txtId, txtDesc, txtTipo, txtUbicacion, txtFabricante, txtSerie,
             txtModelo, txtDimensiones, txtPeso, txtCosto, txtVida;
 
+    /** Selector de estado del equipo mediante enumeración. */
     private JComboBox<Equipo.EstadoEquipo> comboEstado;
 
+    /** Tabla de visualización de equipos registrados. */
     private JTable tabla;
+
+    /** Modelo utilizado para alimentar la tabla con datos dinámicos. */
     private DefaultTableModel modeloTabla;
 
-    // CONSTRUCTOR
+    /**
+     * Constructor por defecto que instancia el frame usando la instancia
+     * global del sistema de mantenimiento.
+     */
     public EquipoFrame() {
         this(SistemaMantenimiento.getInstance());
     }
 
+    /**
+     * Crea la interfaz de administración de equipos vinculada a un gestor del sistema.
+     *
+     * @param sistema instancia principal que provee acceso a controladores
+     */
     public EquipoFrame(SistemaMantenimiento sistema) {
 
         equipoController = sistema.getEquipoController();
@@ -33,6 +52,7 @@ public class EquipoFrame extends JFrame {
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
 
+        // ---- Panel de entrada de datos ----
         JPanel panel = new JPanel(new GridLayout(12, 2, 5, 5));
 
         panel.add(new JLabel("ID:"));
@@ -74,10 +94,12 @@ public class EquipoFrame extends JFrame {
 
         add(panel, BorderLayout.NORTH);
 
+        // ---- Botón para registrar equipo ----
         JButton btnRegistrar = new JButton("Registrar Equipo");
         btnRegistrar.addActionListener(e -> registrar());
         add(btnRegistrar, BorderLayout.CENTER);
 
+        // ---- Modelo de tabla ----
         modeloTabla = new DefaultTableModel(
                 new Object[]{"ID","Descripción","Tipo","Ubicación","Fabricante","Estado"}, 0
         );
@@ -86,6 +108,7 @@ public class EquipoFrame extends JFrame {
         JScrollPane scroll = new JScrollPane(tabla);
         add(scroll, BorderLayout.SOUTH);
 
+        // ---- Panel inferior de acciones ----
         JPanel botPanel = new JPanel();
         JButton btnEliminar = new JButton("Eliminar seleccionado");
         btnEliminar.addActionListener(e -> eliminar());
@@ -101,6 +124,11 @@ public class EquipoFrame extends JFrame {
         cargarTabla();
     }
 
+    /**
+     * Registra un nuevo equipo leyendo los datos del formulario,
+     * ejecutando las validaciones desde el controlador y mostrando
+     * el resultado en pantalla.
+     */
     private void registrar() {
         try {
             int id = Integer.parseInt(txtId.getText());
@@ -140,6 +168,10 @@ public class EquipoFrame extends JFrame {
         }
     }
 
+    /**
+     * Refresca los datos mostrados en la tabla consultando nuevamente
+     * la lista de equipos desde el controlador.
+     */
     private void cargarTabla() {
         modeloTabla.setRowCount(0);
         List<Equipo> lista = equipoController.obtenerEquipos();
@@ -156,6 +188,10 @@ public class EquipoFrame extends JFrame {
         }
     }
 
+    /**
+     * Elimina el equipo seleccionado en la tabla mediante confirmación
+     * del usuario, y luego actualiza la lista de visualización.
+     */
     private void eliminar() {
         int fila = tabla.getSelectedRow();
         if (fila == -1) {
@@ -179,6 +215,9 @@ public class EquipoFrame extends JFrame {
         }
     }
 
+    /**
+     * Limpia el formulario regresando los campos a sus valores iniciales.
+     */
     private void limpiarCampos() {
         txtId.setText("");
         txtDesc.setText("");
@@ -194,6 +233,7 @@ public class EquipoFrame extends JFrame {
         comboEstado.setSelectedIndex(0);
     }
 }
+
 
 
 

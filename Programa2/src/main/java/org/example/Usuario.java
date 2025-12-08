@@ -2,6 +2,11 @@ package org.example;
 
 import java.time.LocalDate;
 
+/**
+ * Representa un usuario dentro del sistema de mantenimiento.
+ * Contiene información personal, credenciales de acceso,
+ * rol asignado y estado de actividad.
+ */
 public class Usuario {
 
     private int idUsuario;
@@ -16,6 +21,19 @@ public class Usuario {
 
     // ----- Constructor -----
 
+    /**
+     * Crea un usuario con datos completos.
+     * El usuario se registra por defecto como activo
+     * y la fecha de creación se asigna automáticamente con la fecha actual.
+     *
+     * @param idUsuario identificador único del usuario
+     * @param nombreCompleto nombre completo del usuario
+     * @param username nombre de usuario para inicio de sesión
+     * @param password contraseña asociada
+     * @param rol rol asignado dentro del sistema
+     * @param email correo electrónico
+     * @param telefono número telefónico
+     */
     public Usuario(int idUsuario,
                    String nombreCompleto,
                    String username,
@@ -95,16 +113,27 @@ public class Usuario {
         return fechaCreacion;
     }
 
-    // ----- Métodos -----
+    // ----- Métodos funcionales -----
 
+    /**
+     * Desactiva al usuario, impidiendo su acceso.
+     */
     public void desactivar() {
         this.activo = false;
     }
 
+    /**
+     * Activa nuevamente al usuario.
+     */
     public void activar() {
         this.activo = true;
     }
 
+    /**
+     * Cambia la contraseña actual del usuario.
+     *
+     * @param nuevaPassword nueva clave a registrar
+     */
     public void cambiarPassword(String nuevaPassword) {
         this.password = nuevaPassword;
     }
@@ -123,4 +152,5 @@ public class Usuario {
                 '}';
     }
 }
+
 

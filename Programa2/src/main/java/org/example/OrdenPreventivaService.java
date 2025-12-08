@@ -4,29 +4,50 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Servicio encargado de administrar las operaciones relacionadas con
+ * órdenes preventivas.
+ *
+ * Provee funciones CRUD (crear, buscar, eliminar) y acciones operativas:
+ * iniciar, completar, cancelar, agregar material, validar estados y
+ * obtener estadísticas.
+ */
 public class OrdenPreventivaService {
 
+    /** Lista interna que almacena las órdenes preventivas registradas */
     private List<OrdenPreventiva> ordenesPreventivas;
 
-    // Constructor
+    /** Constructor: inicializa la estructura de almacenamiento */
     public OrdenPreventivaService() {
         this.ordenesPreventivas = new ArrayList<>();
     }
 
-    // ------------------- CRUD -------------------
+    // --------------------------------------------------------------------
+    // ------------------------- CRUD BÁSICO ------------------------------
+    // --------------------------------------------------------------------
 
-    /** Agregar nueva orden preventiva */
+    /**
+     * Registra una nueva orden preventiva.
+     *
+     * @param orden objeto de OrdenPreventiva
+     * @return true si se agregó correctamente, false si ya existe un ID igual
+     */
     public boolean agregarOrdenPreventiva(OrdenPreventiva orden) {
         for (OrdenPreventiva o : ordenesPreventivas) {
             if (o.getIdOrden() == orden.getIdOrden()) {
-                return false; // Ya existe
+                return false; // Ya existe una orden con ese ID
             }
         }
         ordenesPreventivas.add(orden);
         return true;
     }
 
-    /** Buscar orden por ID */
+    /**
+     * Busca una orden preventiva por su ID.
+     *
+     * @param idOrden identificador buscado
+     * @return objeto OrdenPreventiva si existe, null si no se encuentra
+     */
     public OrdenPreventiva buscarOrdenPreventivaPorId(int idOrden) {
         for (OrdenPreventiva o : ordenesPreventivas) {
             if (o.getIdOrden() == idOrden) {
@@ -36,7 +57,12 @@ public class OrdenPreventivaService {
         return null;
     }
 
-    /** Eliminar por ID */
+    /**
+     * Elimina una orden preventiva registrada.
+     *
+     * @param idOrden identificador de la orden
+     * @return true si se eliminó, false si no existe
+     */
     public boolean eliminarOrdenPreventiva(int idOrden) {
         OrdenPreventiva orden = buscarOrdenPreventivaPorId(idOrden);
         if (orden != null) {
@@ -46,14 +72,22 @@ public class OrdenPreventivaService {
         return false;
     }
 
-    /** Obtener lista de órdenes */
+    /** @return lista actual de órdenes preventivas */
     public List<OrdenPreventiva> obtenerOrdenesPreventivas() {
         return ordenesPreventivas;
     }
 
-    // ------------------- OPERACIONES DE MANTENIMIENTO -------------------
+    // --------------------------------------------------------------------
+    // --------------- OPERACIONES RELACIONADAS A ESTADOS ----------------
+    // --------------------------------------------------------------------
 
-    /** Iniciar una orden preventiva */
+    /**
+     * Inicia una orden si está en estado válido.
+     *
+     * @param idOrden     ID de orden
+     * @param fechaInicio fecha real de ejecución
+     * @return true si se pudo iniciar, false si no aplica
+     */
     public boolean iniciarOrdenPreventiva(int idOrden, LocalDate fechaInicio) {
 
         OrdenPreventiva orden = buscarOrdenPreventivaPorId(idOrden);
@@ -70,7 +104,11 @@ public class OrdenPreventivaService {
         return true;
     }
 
-    /** Completar una orden preventiva */
+    /**
+     * Finaliza una orden preventiva registrando diagnóstico y técnico.
+     *
+     * @return true si la operación fue válida, false si no cumple reglas
+     */
     public boolean completarOrdenPreventiva(int idOrden,
                                             LocalDate fechaReal,
                                             double tiempoRealHoras,
@@ -82,7 +120,7 @@ public class OrdenPreventivaService {
         if (orden == null) return false;
         if (orden.getEstado() == OrdenPreventiva.EstadoOrden.CANCELADA) return false;
 
-        // Validación de fecha
+        // Validación de fecha lógica
         if (fechaReal.isBefore(orden.getFechaProgramada())) {
             return false;
         }
@@ -97,7 +135,9 @@ public class OrdenPreventivaService {
         return true;
     }
 
-    /** Cancelar una orden preventiva */
+    /**
+     * Cancela una orden preventiva con un motivo.
+     */
     public boolean cancelarOrdenPreventiva(int idOrden, String motivo) {
         OrdenPreventiva orden = buscarOrdenPreventivaPorId(idOrden);
 
@@ -108,9 +148,15 @@ public class OrdenPreventivaService {
         return true;
     }
 
-    // ------------------- AGREGAR MATERIALES -------------------
+    // --------------------------------------------------------------------
+    // ---------------------- MATERIALES / INSUMOS ------------------------
+    // --------------------------------------------------------------------
 
-    /** Agregar materiales utilizados a la orden */
+    /**
+     * Registra un material utilizado en la orden.
+     *
+     * @return true si se agregó, false si orden no existe o material vacío
+     */
     public boolean agregarMaterialAOrden(int idOrden, String material) {
         OrdenPreventiva orden = buscarOrdenPreventivaPorId(idOrden);
 
@@ -122,22 +168,26 @@ public class OrdenPreventivaService {
         return true;
     }
 
-    // ============================================
-    // 🔹 Validación: verificar si puede finalizar
-    // ============================================
+    // --------------------------------------------------------------------
+    // ----------- Validación de condiciones de finalización --------------
+    // --------------------------------------------------------------------
+
+    /**
+     * Determina si una orden podría ser finalizada según estado actual.
+     */
     public boolean puedeFinalizar(int idOrden) {
         OrdenPreventiva op = buscarOrdenPreventivaPorId(idOrden);
 
         if (op == null) return false;
 
-        // Solo se permite finalizar si está programada o en ejecución
+        // Solo programadas o en ejecución pueden finalizarse
         return op.getEstado() == OrdenPreventiva.EstadoOrden.PROGRAMADA ||
             op.getEstado() == OrdenPreventiva.EstadoOrden.EN_PROCESO;
     }
 
-    // ============================================
-    //  Finalizar Orden Preventiva
-    // ============================================
+    /**
+     * Marca la finalización de una orden sin registrar tiempo / técnico.
+     */
     public boolean finalizarOrdenPreventiva(int idOrden, LocalDate fechaRealizacion, String resultado) {
         OrdenPreventiva op = buscarOrdenPreventivaPorId(idOrden);
         if (op == null) return false;
@@ -148,14 +198,26 @@ public class OrdenPreventivaService {
         return true;
     }
 
-    // Conteo de órdenes por equipo
+    // --------------------------------------------------------------------
+    // -------------------------- Estadísticas ----------------------------
+    // --------------------------------------------------------------------
+
+    /**
+     * Cuenta cuántas órdenes preventivas están asociadas a un equipo específico.
+     */
     public long contarOrdenesPorEquipo(int idEquipo) {
         return obtenerOrdenesPreventivas().stream()
                 .filter(op -> op.getEquipoAsociado().getId() == idEquipo)
                 .count();
     }
 
-    // Generar nuevo ID de orden preventiva
+    // --------------------------------------------------------------------
+    // ------------------------ Creación simplificada ---------------------
+    // --------------------------------------------------------------------
+
+    /**
+     * Crea una nueva orden preventiva.
+     */
     public boolean crearOrdenPreventiva(int idOrden,
                                     LocalDate fecha,
                                     Equipo equipo,
@@ -168,7 +230,6 @@ public class OrdenPreventivaService {
                 return false;
             }
         }
-    
 
         OrdenPreventiva nueva = new OrdenPreventiva(
                 idOrden,
@@ -182,6 +243,9 @@ public class OrdenPreventivaService {
         return true;
     }
 
+    /**
+     * Inicia una orden. Solo procede si está programada.
+     */
     public boolean iniciarOrden(int id, LocalDate fecha) {
         OrdenPreventiva op = buscarOrdenPreventivaPorId(id);
         if (op == null) return false;
@@ -191,6 +255,9 @@ public class OrdenPreventivaService {
         return true;
     }
 
+    /**
+     * Completa una orden. Solo procede si estaba en ejecución.
+     */
     public boolean completarOrden(int id, LocalDate fecha, double tiempo, String diag, Tecnico tecnico) {
         OrdenPreventiva op = buscarOrdenPreventivaPorId(id);
         if (op == null) return false;
@@ -200,6 +267,9 @@ public class OrdenPreventivaService {
         return true;
     }
 
+    /**
+     * Cancela una orden si aún no ha sido finalizada.
+     */
     public boolean cancelarOrden(int id, String motivo) {
         OrdenPreventiva op = buscarOrdenPreventivaPorId(id);
         if (op == null) return false;
@@ -209,6 +279,9 @@ public class OrdenPreventivaService {
         return true;
     }
 
+    /**
+     * Agrega material consumido en la orden.
+     */
     public boolean agregarMaterial(int id, String material) {
         OrdenPreventiva op = buscarOrdenPreventivaPorId(id);
         if (op == null) return false;
@@ -216,10 +289,12 @@ public class OrdenPreventivaService {
         return true;
     }
 
+    /** Devuelve todas las órdenes preventivas registradas */
     public List<OrdenPreventiva> obtenerOrdenes() {
         return ordenesPreventivas;
     }
 }
+
 
 
 

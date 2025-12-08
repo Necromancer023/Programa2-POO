@@ -5,6 +5,10 @@ import java.util.List;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
+/**
+ * Ventana de interfaz gráfica para la gestión de técnicos.
+ * Permite registrar técnicos, listarlos y eliminarlos de la tabla.
+ */
 public class TecnicoFrame extends JFrame {
 
     private TecnicoController tecnicoController;
@@ -13,10 +17,18 @@ public class TecnicoFrame extends JFrame {
     private JTable tabla;
     private DefaultTableModel modeloTabla;
 
+    /**
+     * Constructor por defecto que obtiene el controlador desde
+     * la instancia principal del sistema.
+     */
     public TecnicoFrame() {
         this(SistemaMantenimiento.getInstance());
     }
 
+    /**
+     * Constructor que recibe una instancia del sistema para acceder
+     * al controlador correspondiente.
+     */
     public TecnicoFrame(SistemaMantenimiento sistema) {
 
         tecnicoController = sistema.getTecnicoController();
@@ -26,11 +38,11 @@ public class TecnicoFrame extends JFrame {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
-        // Panel principal
+        // Panel raíz para la estructura general
         JPanel root = new JPanel(new BorderLayout());
         add(root);
 
-        // -------- FORMULARIO --------
+        // ========== FORMULARIO DE REGISTRO ==========
         JPanel panelForm = new JPanel(new GridLayout(5, 2, 5, 5));
 
         panelForm.add(new JLabel("ID:"));
@@ -53,7 +65,6 @@ public class TecnicoFrame extends JFrame {
         txtEmail = new JTextField();
         panelForm.add(txtEmail);
 
-        // contenedor superior
         JPanel panelSuperior = new JPanel(new BorderLayout());
         panelSuperior.add(panelForm, BorderLayout.NORTH);
 
@@ -63,7 +74,7 @@ public class TecnicoFrame extends JFrame {
 
         root.add(panelSuperior, BorderLayout.NORTH);
 
-        // -------- TABLA --------
+        // ========== TABLA DE LISTADO ==========
         modeloTabla = new DefaultTableModel(
                 new Object[]{"ID", "Nombre", "Especialidad", "Teléfono", "Email", "Activo"}, 0
         );
@@ -72,7 +83,7 @@ public class TecnicoFrame extends JFrame {
         JScrollPane scroll = new JScrollPane(tabla);
         root.add(scroll, BorderLayout.CENTER);
 
-        // -------- PANEL BOTONES --------
+        // ========== PANEL DE BOTONES INFERIOR ==========
         JPanel panelBotones = new JPanel();
 
         JButton btnEliminar = new JButton("Eliminar seleccionado");
@@ -89,6 +100,10 @@ public class TecnicoFrame extends JFrame {
         cargarTabla();
     }
 
+    /**
+     * Intenta registrar un técnico utilizando los datos del formulario.
+     * Muestra el resultado y actualiza la tabla si el registro es exitoso.
+     */
     private void registrarTecnico() {
         try {
             int id = Integer.parseInt(txtId.getText());
@@ -111,6 +126,9 @@ public class TecnicoFrame extends JFrame {
         }
     }
 
+    /**
+     * Carga los datos de los técnicos registrados en la tabla visual.
+     */
     private void cargarTabla() {
         modeloTabla.setRowCount(0);
 
@@ -128,6 +146,9 @@ public class TecnicoFrame extends JFrame {
         }
     }
 
+    /**
+     * Elimina el técnico seleccionado en la tabla y refresca el listado.
+     */
     private void eliminarTecnico() {
         int fila = tabla.getSelectedRow();
         if (fila == -1) {
@@ -143,6 +164,9 @@ public class TecnicoFrame extends JFrame {
         cargarTabla();
     }
 
+    /**
+     * Limpia los campos del formulario tras registrar un técnico.
+     */
     private void limpiarCampos() {
         txtId.setText("");
         txtNombre.setText("");
@@ -151,6 +175,7 @@ public class TecnicoFrame extends JFrame {
         txtEmail.setText("");
     }
 }
+
 
 
 

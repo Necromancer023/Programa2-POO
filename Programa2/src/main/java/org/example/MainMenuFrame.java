@@ -3,6 +3,11 @@ package org.example;
 import java.awt.*;
 import javax.swing.*;
 
+/**
+ * Ventana principal del sistema.
+ * Presenta un menú con accesos a los distintos módulos del sistema
+ * y controla la visibilidad según el rol del usuario autenticado.
+ */
 public class MainMenuFrame extends JFrame {
 
     private SistemaMantenimiento sistema;
@@ -19,6 +24,11 @@ public class MainMenuFrame extends JFrame {
     private JButton btnAuditoria;
     private JButton btnCerrarSesion;
 
+    /**
+     * Constructor que recibe el sistema central para interactuar con sus controladores.
+     *
+     * @param sistema instancia única del sistema de mantenimiento
+     */
     public MainMenuFrame(SistemaMantenimiento sistema) {
         this.sistema = sistema;
 
@@ -27,12 +37,11 @@ public class MainMenuFrame extends JFrame {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        // GridLayout 5x3 para incluir todos los botones sin cortes
+        // Panel principal con distribución en cuadrícula
         JPanel panel = new JPanel(new GridLayout(5, 3, 10, 10));
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-
-        // Crear cada botón asignándole su acción
+        // Creación y asociación de cada botón con su acción correspondiente
         btnUsuarios = btn("Usuarios", () -> new UsuarioFrame(sistema).setVisible(true));
         btnTecnicos = btn("Técnicos", () -> new TecnicoFrame(sistema).setVisible(true));
         btnEquipos = btn("Equipos", () -> new EquipoFrame(sistema).setVisible(true));
@@ -42,12 +51,13 @@ public class MainMenuFrame extends JFrame {
         btnProgramas = btn("Programas Preventivos", () -> new ProgramaPreventivoFrame(sistema).setVisible(true));
         btnReportes = btn("Reportes", () -> new ReportesFrame(sistema).setVisible(true));
         btnAuditoria = btn("Auditoría", () -> new AuditoriaFrame(sistema).setVisible(true));
-        
+
+        // Botón especial de cierre de sesión
         btnCerrarSesion = btn("Cerrar Sesión", this::cerrarSesion);
         btnCerrarSesion.setBackground(new Color(220, 53, 69));
         btnCerrarSesion.setForeground(Color.WHITE);
 
-        // Agregar botones al panel
+        // Incorporación de los botones al panel en orden visual
         panel.add(btnUsuarios);
         panel.add(btnTecnicos);
         panel.add(btnEquipos);
@@ -62,60 +72,58 @@ public class MainMenuFrame extends JFrame {
         panel.add(btn("Gráfico Costos", () -> new GraficoCostosFrame(sistema).setVisible(true)));
         panel.add(btn("Gráfico Estados", () -> new GraficoEstadosFrame(sistema).setVisible(true)));
 
+        // Espacios de relleno para diseño
+        panel.add(new JLabel());
+        panel.add(new JLabel());
 
-        // Espacios vacíos
-        panel.add(new JLabel());
-        panel.add(new JLabel());
-        
-        // Botón cerrar sesión al final
+        // Botón de cierre de sesión al final
         panel.add(btnCerrarSesion);
 
         add(panel);
 
-        // Aplicar control de acceso DESPUÉS de crear todos los botones
+        // Aplicación de restricciones por rol del usuario después de crear los botones
         aplicarControlDeAcceso();
     }
 
     /**
-     * Método para personalizar visibilidad del menú según Rol del usuario logueado
+     * Ajusta la visibilidad y habilitación de opciones según el rol
+     * del usuario que ingresó al sistema.
      */
     private void aplicarControlDeAcceso() {
         try {
             Usuario usuarioActual = sistema.getUsuarioActual();
-            
-            // Validar que el usuario exista
+
+            // Validación inicial de sesión
             if (usuarioActual == null) {
                 System.err.println("ERROR: No hay usuario logueado en el sistema");
-                JOptionPane.showMessageDialog(this, 
-                    "Error: No se detectó un usuario logueado.\nSerá redirigido al login.",
-                    "Error de sesión",
-                    JOptionPane.ERROR_MESSAGE);
-                
+                JOptionPane.showMessageDialog(this,
+                        "Error: No se detectó un usuario logueado.\nSerá redirigido al login.",
+                        "Error de sesión",
+                        JOptionPane.ERROR_MESSAGE);
+
                 dispose();
                 new LoginFrame(sistema).setVisible(true);
                 return;
             }
-            
-            Rol rol = usuarioActual.getRol();
-            
-            // Mostrar información del usuario en el título
-            setTitle("Sistema de Mantenimiento - " + usuarioActual.getNombreCompleto() + 
-                    " (" + rol + ")");
-            
-            System.out.println("Aplicando control de acceso para: " + 
-                             usuarioActual.getNombreCompleto() + " [" + rol + "]");
 
+            Rol rol = usuarioActual.getRol();
+
+            // Mostrar nombre y rol en título
+            setTitle("Sistema de Mantenimiento - " + usuarioActual.getNombreCompleto() +
+                    " (" + rol + ")");
+
+            System.out.println("Aplicando control de acceso para: " +
+                    usuarioActual.getNombreCompleto() + " [" + rol + "]");
+
+            // Configuración específica según el tipo de rol
             switch (rol) {
 
                 case TECNICO:
-                    System.out.println("   → Perfil TÉCNICO: acceso operativo");
                     btnUsuarios.setEnabled(false);
                     btnAuditoria.setEnabled(false);
-                    // Puede usar: Técnicos, Equipos, Órdenes, Inventario, Programas, Reportes
                     break;
 
                 case AUDITOR:
-                    System.out.println("   → Perfil AUDITOR: solo consulta y auditoría");
                     btnUsuarios.setEnabled(false);
                     btnTecnicos.setEnabled(false);
                     btnEquipos.setEnabled(false);
@@ -123,23 +131,17 @@ public class MainMenuFrame extends JFrame {
                     btnCorrectivas.setEnabled(false);
                     btnInventario.setEnabled(false);
                     btnProgramas.setEnabled(false);
-                    // Solo puede usar: Reportes y Auditoría
                     break;
 
                 case SUPERVISOR:
-                    System.out.println("   → Perfil SUPERVISOR: acceso de supervisión");
                     btnUsuarios.setEnabled(false);
-                    // Puede usar todo excepto gestión de usuarios
                     break;
 
                 case ADMINISTRADOR:
-                    System.out.println("   → Perfil ADMINISTRADOR: acceso total");
-                    // Todos los botones habilitados (no hace nada)
+                    // Todos habilitados, no requiere cambios
                     break;
 
                 default:
-                    System.out.println("   → Rol desconocido: acceso restringido");
-                    // Bloquear todo excepto reportes
                     btnUsuarios.setEnabled(false);
                     btnTecnicos.setEnabled(false);
                     btnEquipos.setEnabled(false);
@@ -154,16 +156,16 @@ public class MainMenuFrame extends JFrame {
         } catch (NullPointerException e) {
             System.err.println("Error: Usuario actual es null");
             e.printStackTrace();
-            
+
             JOptionPane.showMessageDialog(this,
-                "Error crítico: No se pudo determinar el usuario actual.\n" +
-                "La sesión será reiniciada.",
-                "Error de Sistema",
-                JOptionPane.ERROR_MESSAGE);
-            
+                    "Error crítico: No se pudo determinar el usuario actual.\n" +
+                            "La sesión será reiniciada.",
+                    "Error de Sistema",
+                    JOptionPane.ERROR_MESSAGE);
+
             dispose();
             new LoginFrame(sistema).setVisible(true);
-            
+
         } catch (Exception e) {
             System.err.println("Error aplicando control de acceso: " + e.getMessage());
             e.printStackTrace();
@@ -171,7 +173,7 @@ public class MainMenuFrame extends JFrame {
     }
 
     /**
-     * Cierra la sesión del usuario actual
+     * Cierra sesión del usuario y vuelve a la pantalla de login.
      */
     private void cerrarSesion() {
         int confirm = JOptionPane.showConfirmDialog(
@@ -183,22 +185,24 @@ public class MainMenuFrame extends JFrame {
         );
 
         if (confirm == JOptionPane.YES_OPTION) {
-            // Llamar al logout del sistema
             sistema.logout();
-            
-            dispose();  // Cierra el menú actual
-            
-            JOptionPane.showMessageDialog(null, 
-                "Sesión cerrada correctamente",
-                "Hasta pronto",
-                JOptionPane.INFORMATION_MESSAGE);
-            
-            new LoginFrame(sistema).setVisible(true);  // Vuelve al login
+            dispose();
+
+            JOptionPane.showMessageDialog(null,
+                    "Sesión cerrada correctamente",
+                    "Hasta pronto",
+                    JOptionPane.INFORMATION_MESSAGE);
+
+            new LoginFrame(sistema).setVisible(true);
         }
     }
 
     /**
-     * Crea un botón con texto y acción
+     * Método de utilidad para crear botones uniformes con su acción.
+     *
+     * @param texto  etiqueta del botón
+     * @param action operación ejecutada al presionar el botón
+     * @return botón configurado
      */
     private JButton btn(String texto, Runnable action) {
         JButton b = new JButton(texto);
@@ -208,6 +212,7 @@ public class MainMenuFrame extends JFrame {
         return b;
     }
 }
+
 
 
 

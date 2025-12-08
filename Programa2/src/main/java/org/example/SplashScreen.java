@@ -3,8 +3,19 @@ package org.example;
 import java.awt.*;
 import javax.swing.*;
 
+/**
+ * Ventana de presentación inicial del sistema (splash screen).
+ * Se muestra de forma temporal al iniciar la aplicación mientras
+ * se realizan cargas internas o inicialización de módulos.
+ *
+ * Extiende JWindow para ser una pantalla simple sin bordes ni controles.
+ */
 public class SplashScreen extends JWindow {
 
+    /**
+     * Constructor que configura la apariencia del splash,
+     * incluyendo colores, texto y tamaño de la ventana.
+     */
     public SplashScreen() {
         JPanel panel = new JPanel();
         panel.setBackground(new Color(45, 85, 150));
@@ -26,6 +37,12 @@ public class SplashScreen extends JWindow {
         setLocationRelativeTo(null);
     }
 
+    /**
+     * Muestra el splash en pantalla durante un breve intervalo
+     * de tiempo y luego lo cierra automáticamente.
+     *
+     * Se usa en la fase de arranque antes de mostrar la ventana principal.
+     */
     public void mostrar() {
         setVisible(true);
         try {
@@ -35,4 +52,5 @@ public class SplashScreen extends JWindow {
         dispose();
     }
 }
+
 

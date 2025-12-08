@@ -4,16 +4,30 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Servicio encargado de gestionar las operaciones sobre
+ * órdenes correctivas: creación, búsqueda, actualización
+ * de estados, materiales, tiempos y consultas.
+ *
+ * Actúa como capa de negocio para {@link OrdenCorrectivaController}.
+ */
 public class OrdenCorrectivaService {
 
     private List<OrdenCorrectiva> ordenesCorrectivas;
 
-    // Constructor
+    /**
+     * Constructor — inicializa la lista interna de órdenes correctivas.
+     */
     public OrdenCorrectivaService() {
         this.ordenesCorrectivas = new ArrayList<>();
     }
 
-    // Crear/agregar una orden correctiva
+    /**
+     * Registra una orden correctiva si su ID no existe previamente.
+     *
+     * @param orden nueva orden a añadir
+     * @return true si se agregó, false si existe otra con mismo ID
+     */
     public boolean agregarOrdenCorrectiva(OrdenCorrectiva orden) {
         for (OrdenCorrectiva o : ordenesCorrectivas) {
             if (o.getIdOrdenCorrectiva() == orden.getIdOrdenCorrectiva()) {
@@ -24,7 +38,12 @@ public class OrdenCorrectivaService {
         return true;
     }
 
-    // Buscar por ID
+    /**
+     * Busca y retorna una orden correctiva por su ID.
+     *
+     * @param idOrden identificador de la orden
+     * @return instancia encontrada o null si no existe
+     */
     public OrdenCorrectiva buscarOrdenCorrectivaPorId(int idOrden) {
         for (OrdenCorrectiva o : ordenesCorrectivas) {
             if (o.getIdOrdenCorrectiva() == idOrden) {
@@ -34,7 +53,12 @@ public class OrdenCorrectivaService {
         return null;
     }
 
-    // Eliminar por ID
+    /**
+     * Elimina una orden correctiva existente.
+     *
+     * @param idOrden ID de la orden a eliminar
+     * @return true si se eliminó, false si no existe
+     */
     public boolean eliminarOrdenCorrectiva(int idOrden) {
         OrdenCorrectiva orden = buscarOrdenCorrectivaPorId(idOrden);
         if (orden != null) {
@@ -44,7 +68,14 @@ public class OrdenCorrectivaService {
         return false;
     }
 
-    // Iniciar atención de una orden
+    /**
+     * Cambia el estado de una orden a EN_PROCESO,
+     * validando coherencia temporal.
+     *
+     * @param idOrden ID de la orden
+     * @param fechaAtencion fecha en que inicia su atención
+     * @return true si se realizó el cambio; false si falla validación
+     */
     public boolean iniciarAtencion(int idOrden, LocalDate fechaAtencion) {
         OrdenCorrectiva orden = buscarOrdenCorrectivaPorId(idOrden);
         if (orden == null) return false;
@@ -58,7 +89,18 @@ public class OrdenCorrectivaService {
         return true;
     }
 
-    // FINALIZAR ORDEN — versión completa
+    /**
+     * Finaliza una orden correctiva, registrando costos, horas,
+     * resultados y observaciones internas.
+     *
+     * @param idOrden ID de la orden
+     * @param fechaFinalizacion fecha de cierre
+     * @param accionesRealizadas acciones ejecutadas
+     * @param observacionesFinales texto final de resumen
+     * @param costo costo económico
+     * @param horasTrabajadas tiempo invertido
+     * @return true si la orden fue finalizada correctamente
+     */
     public boolean finalizarOrdenCorrectiva(int idOrden,
                                             LocalDate fechaFinalizacion,
                                             String accionesRealizadas,
@@ -86,7 +128,14 @@ public class OrdenCorrectivaService {
         return true;
     }
 
-    // MARCAR COMO NO REPARADA
+    /**
+     * Cambia el estado de una orden a NO_REPARADA
+     * guardando el motivo correspondiente.
+     *
+     * @param idOrden ID de la orden
+     * @param motivo texto explicativo
+     * @return true si se aplicó el cambio
+     */
     public boolean marcarNoReparada(int idOrden, String motivo) {
         OrdenCorrectiva orden = buscarOrdenCorrectivaPorId(idOrden);
         if (orden == null) return false;
@@ -97,7 +146,13 @@ public class OrdenCorrectivaService {
         return true;
     }
 
-    // REGISTRAR MATERIAL UTILIZADO
+    /**
+     * Registra material utilizado en una orden.
+     *
+     * @param idOrden ID de la orden
+     * @param material descripción del material
+     * @return true si se agregó, false si la orden no existe
+     */
     public boolean agregarMaterial(int idOrden, String material) {
         OrdenCorrectiva orden = buscarOrdenCorrectivaPorId(idOrden);
         if (orden == null) return false;
@@ -106,7 +161,13 @@ public class OrdenCorrectivaService {
         return true;
     }
 
-    // REGISTRAR TIEMPO EMPLEADO
+    /**
+     * Guarda el tiempo empleado en la reparación.
+     *
+     * @param idOrden ID de la orden
+     * @param horas cantidad de horas trabajadas
+     * @return true si se registró, false si orden inexistente o valor inválido
+     */
     public boolean registrarTiempo(int idOrden, double horas) {
         OrdenCorrectiva orden = buscarOrdenCorrectivaPorId(idOrden);
         if (orden == null || horas < 0) return false;
@@ -115,16 +176,26 @@ public class OrdenCorrectivaService {
         return true;
     }
 
-    // Obtener todas las órdenes
+    /**
+     * Devuelve todas las órdenes registradas.
+     *
+     * @return lista completa de órdenes correctivas
+     */
     public List<OrdenCorrectiva> obtenerOrdenesCorrectivas() {
         return ordenesCorrectivas;
     }
 
-    // Contar órdenes correctivas por equipo
+    /**
+     * Cuenta cuántas órdenes correctivas están asociadas a un equipo.
+     *
+     * @param idEquipo ID del equipo
+     * @return número de órdenes asociadas
+     */
     public long contarOrdenesCorrectivasPorEquipo(int idEquipo) {
         return obtenerOrdenesCorrectivas().stream()
                 .filter(oc -> oc.getEquipoAsociado().getId() == idEquipo)
                 .count();
     }
 }
+
 
